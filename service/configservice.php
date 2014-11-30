@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,26 +20,24 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Service;
-
 
 use \OCA\EasyBackup\EasyBackupException;
 use \OCA\EasyBackup\ICommandHandler;
-
 use \OCP\BackgroundJob;
 use \OCP\BackgroundJob\IJob;
-
 use \OCP\IConfig;
 
 class ConfigService {
 
 	/**
+	 *
 	 * @var \OCP\IConfig
 	 */
 	protected $owncloudConfig;
 
 	/**
+	 *
 	 * @var string
 	 */
 	protected $appName;
@@ -48,9 +47,8 @@ class ConfigService {
 		$this->owncloudConfig = $owncloudConfig;
 	}
 
-
-
 	/**
+	 *
 	 * @return string
 	 */
 	public function getLogfileName() {
@@ -58,6 +56,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return int
 	 */
 	public function getNumberOfLinesToDisplay() {
@@ -65,6 +64,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return int
 	 */
 	public function getDisplayWidth() {
@@ -72,6 +72,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @param string $updateHost
 	 */
 	public function setUpdateHost($updateHost) {
@@ -79,6 +80,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getUpdateHost() {
@@ -86,30 +88,33 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getPrivateKeyFilname() {
-		return $this->getDataDir(). '/id_rsa';
+		return $this->getDataDir() . '/id_rsa';
 	}
 
-
 	/**
+	 *
 	 * @return string
 	 */
 	public function getKnownHostsFileName() {
-		return $this->getDataDir(). '/known_hosts';
+		return $this->getDataDir() . '/known_hosts';
 	}
 
 	/**
+	 *
 	 * @param string $key
 	 * @param string[optional] $default
 	 * @return string
 	 */
-	public function getAppValue($key, $default=null) {
+	public function getAppValue($key, $default = null) {
 		return $this->owncloudConfig->getAppValue($this->appName, $key, $default);
 	}
 
 	/**
+	 *
 	 * @param string $key
 	 * @param string $value
 	 */
@@ -118,6 +123,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getDataDir() {
@@ -125,6 +131,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function isCronEnabled() {
@@ -132,6 +139,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @param string $schedule
 	 */
 	public function setBackupSchedule($schedule) {
@@ -139,27 +147,50 @@ class ConfigService {
 	}
 
 	/**
-	 * @param int $scheduleTime in current Timezone
+	 *
+	 * @param int $scheduleTime
+	 *        	in current Timezone
 	 */
 	public function setScheduleTime($scheduleTime) {
 		$timezoneOffset = \OC::$session->get('timezone');
-		if($timezoneOffset) {
+		if ($timezoneOffset) {
 			$scheduleTime -= $timezoneOffset;
-			if($scheduleTime < 0) {
+			if ($scheduleTime < 0) {
 				$scheduleTime += 24;
+			} elseif ($scheduleTime > 23) {
+				$scheduleTime -= 24;
 			}
 		}
 		$this->setAppValue('SCHEDULE_TIME', $scheduleTime);
 	}
 
 	/**
-	 * @return integer schedule time in UTC
+	 *
+	 * @return integer schedule time in local timezone
 	 */
 	public function getScheduleTime() {
-		return intval($this->getAppValue('SCHEDULE_TIME', -1));
+		$scheduleTime = intval($this->getAppValue('SCHEDULE_TIME', - 1));
+		if ($timezoneOffset && $scheduleTime >= 0) {
+			$scheduleTime += $timezoneOffset;
+			if ($scheduleTime < 0) {
+				$scheduleTime += 24;
+			} elseif ($scheduleTime > 23) {
+				$scheduleTime -= 24;
+			}
+		}
+		return $scheduleTime;
 	}
 
 	/**
+	 *
+	 * @return integer schedule time in UTC
+	 */
+	public function getScheduleTimeUTC() {
+		return intval($this->getAppValue('SCHEDULE_TIME', - 1));
+	}
+
+	/**
+	 *
 	 * @return boolean
 	 */
 	public function isBackupScheduled() {
@@ -167,6 +198,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @param $scheduled boolean
 	 */
 	public function setBackupScheduled($scheduled) {
@@ -174,6 +206,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getBackupCommand() {
@@ -181,6 +214,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @param string $command
 	 */
 	public function setBackupCommand($command) {
@@ -188,6 +222,7 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getRestoreCommand() {
@@ -195,34 +230,33 @@ class ConfigService {
 	}
 
 	/**
+	 *
 	 * @param string $command
 	 */
 	public function setRestoreCommand($command) {
 		$this->setAppValue('RESTORE_COMMAND', $command);
 	}
 
-
-
-
 	/**
 	 * Schedule a job for delayed / regular execution
 	 *
 	 * @param \OCP\BackgroundJob\IJob $job
-	 * @param string $commandHandlerString a string representing a \OCA\EasyBackup\ICommandHandler instance
+	 * @param string $commandHandlerString
+	 *        	a string representing a \OCA\EasyBackup\ICommandHandler instance
 	 *
 	 * @throws \OCA\EasyBackup\EasyBackupException when the provided commandHandlerString
-	 * 			designates not a type \OCA\EasyBackup\ICommandHandler
+	 *         designates not a type \OCA\EasyBackup\ICommandHandler
 	 */
 	public function register(IJob $job, $commandHandlerString) {
-		if(!class_exists($commandHandlerString)) {
+		if (! class_exists($commandHandlerString)) {
 			throw new EasyBackupException("Class '$commandHandlerString' does not exist");
 		}
-		$executor = new $commandHandlerString;
-		if(!($executor instanceof ICommandHandler)) {
+		$executor = new $commandHandlerString();
+		if (! ($executor instanceof ICommandHandler)) {
 			throw new EasyBackupException("'$commandHandlerString' is not of type \OCA\EasyBackup\ICommandHandler");
 		}
 		$jobList = \OC::$server->getJobList();
-		if(!$jobList->has($job, $commandHandlerString)) {
+		if (! $jobList->has($job, $commandHandlerString)) {
 			BackgroundJob::registerJob($job, $commandHandlerString);
 		}
 	}

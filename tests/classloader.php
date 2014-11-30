@@ -20,7 +20,29 @@
  *
  */
 
+if(!substr(__DIR__, -strlen('easybackup/tests')) == 'easybackup/tests') {
+	die('Unit tests for easybackup are located in .../easybackup/tests, e.g. $ phpunit /path/to/apps/easybackup/tests');
+}
 
+// You have to create a File with the OC_ROOT_PATH definition,
+// if the app is not inside OC's apps directory.
+// Create a file bootstrap.php with  e.g. : <?php define('OC_ROOT_PATH', '/home/user/workspace/owncloud/');
+//
+// This file needs to be executed before the test suite with
+// phpunit's --bootstrap option
+// e.g. phpunit --bootstrap /path/to/bootstrap.php /path/to/easybackup/tests
+
+
+if(!defined('OC_ROOT_PATH')) {
+	// We suppose we're in .../owncloud/apps/easybackup/tests
+	// so move up three directories from here
+	define('OC_ROOT_PATH', dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR);
+}
+
+/**
+ * Fake \OC class for unit tests
+ *
+ */
 class OC {
 	public static $server;
 	public static $session;
@@ -39,8 +61,9 @@ class OC {
 spl_autoload_register(
 		function ($className) {
 	$relPath = false;
+	$triedPaths = array();
 	if($className == 'Pimple') {
-		require_once '3rdparty/Pimple/Pimple.php';
+		require_once OC_ROOT_PATH . '3rdparty/Pimple/Pimple.php';
 		return;
 	}
 
@@ -51,34 +74,29 @@ spl_autoload_register(
 	}
 
 	if (strpos($className, 'OCA\\EasyBackup') === 0) {
-		// Do not use __DIR__, because it resolves symlinks
-		if(strpos($_SERVER['argv'][1], DIRECTORY_SEPARATOR) === 0) {
-			// an absolute path to the tests folder was given as an argument, so use this one
-			$root = dirname($_SERVER['argv'][1]);
-		} else {
-			$root = dirname($_SERVER['PWD'] . DIRECTORY_SEPARATOR . $_SERVER['argv'][1]);
-		}
-		$relPath = dirname($root) . $filename;
+		// Move up two directories from ../easybackup/tests
+		$triedPaths[] = $relPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . $filename;
 		if (!file_exists($relPath)) {
 			// If not found in the root of the app directory, insert '/lib' after app id and try again
 			$parts = split('/easybackup/', $relPath);
 			if(count($parts) == 2) {
-				$relPath = $parts[0] . '/easybackup/lib/' . $parts[1];
+				$triedPaths[] = $relPath = $parts[0] . '/easybackup/lib/' . $parts[1];
 			}
 		}
 	} else if (strpos($className, 'OCP\\') === 0) {
-		$relPath = 'lib/public/' . $filename;
+		$triedPaths[] = $relPath =  OC_ROOT_PATH . 'lib/public/' . $filename;
 	}  else if(!file_exists($relPath)) {
-		$relPath = 'lib/private/' . $filename;
+		$triedPaths[] = $relPath =  OC_ROOT_PATH . 'lib/private/' . $filename;
 		// File does not exist, try legacy folder
 		if(!file_exists($relPath)) {
-			$relPath = 'lib/private/legacy/' . $filename;
+			$triedPaths[] = $relPath =  OC_ROOT_PATH . 'lib/private/legacy/' . $filename;
 		}
 	}
 
 	if (file_exists($relPath)) {
 		require_once $relPath;
 	} else {
-		die("FATAL: Class $className could not be loaded, because file does not exist: $relPath\n");
+		die("FATAL: Class $className could not be loaded, because file does not exist in paths: "
+				. print_r($triedPaths, true) .  " \n");
 	}
 });

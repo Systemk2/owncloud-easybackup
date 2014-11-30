@@ -27,7 +27,6 @@ use OCA\EasyBackup\StatusContainer;
 
 use \OCA\EasyBackup\AppInfo\Application;
 
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class BackupControllerTest extends \OCA\EasyBackup\BaseTestCase {

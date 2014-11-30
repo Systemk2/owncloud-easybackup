@@ -25,9 +25,6 @@ namespace OCA\EasyBackup\Controller;
 
 use \OCA\EasyBackup\BaseTestCase;
 
-
-
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class LogfileviewControllerTest extends \OCA\EasyBackup\BaseTestCase {

@@ -29,7 +29,6 @@ use OCA\EasyBackup\BackupCompletedCallbackHandler;
 
 use \OCA\EasyBackup\AppInfo\Application;
 
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class StatusContainerTest extends \PHPUnit_Framework_TestCase {

@@ -75,6 +75,7 @@ class ConfigController extends BaseController {
 
 	/**
 	 * @ControllerManaged
+	 * @NoCSRFRequired
 	 *
 	 * Upload SSH private key file
 	 */

@@ -24,7 +24,6 @@
 namespace OCA\EasyBackup;
 
 
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class ScheduledBackupJobTest extends \OCA\EasyBackup\BaseTestCase {

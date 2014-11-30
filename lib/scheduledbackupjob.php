@@ -98,10 +98,11 @@ class ScheduledBackupJob extends \OC\BackgroundJob\Job {
 	 * @param \OC\Log $logger
 	 */
 	public function execute($jobList, $logger = null) {
-		$firstRunAtHour = $this->getConfigService()->getScheduleTime();
+		$firstRunAtHour = $this->getConfigService()->getScheduleTimeUTC();
 		if($this->getLastRun()) {
 			$lastRun = new \DateTime();
 			$lastRun->setTimestamp($this->getLastRun());
+			// TODO: Check Timezone of Last Run!
 			$shouldExecute = $this->getScheduleService()->isToBeExecutedNow($firstRunAtHour, $lastRun);
 		} else {
 			$shouldExecute = $this->getScheduleService()->isToBeExecutedNow($firstRunAtHour);

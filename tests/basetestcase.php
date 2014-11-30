@@ -24,6 +24,8 @@ namespace OCA\EasyBackup;
 
 use \OCA\EasyBackup\AppInfo\Application;
 
+require_once (__DIR__ . '/classloader.php');
+
 abstract class BaseTestCase extends \PHPUnit_Framework_TestCase {
 
 	/**

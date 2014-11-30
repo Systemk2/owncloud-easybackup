@@ -32,7 +32,6 @@ use \OCP\AppFramework\Http\JSONResponse;
 
 use \OCA\EasyBackup\AppInfo\Application;
 
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class BaseControllerInstance extends \OCA\EasyBackup\Controller\BaseController {
@@ -85,7 +84,7 @@ class BaseControllerInstance extends \OCA\EasyBackup\Controller\BaseController {
 	}
 
 	protected function withoutAnnotationThrowsException() {
-		throw new \Exception('Text3');
+		throw new \BadFunctionCallException('Text3');
 	}
 
 }
@@ -158,7 +157,7 @@ class BaseControllerTest extends \OCA\EasyBackup\BaseTestCase  {
 	}
 
 	public function testWithoutAnnotationThrowsException() {
-		$this->setExpectedException('Exception');
+		$this->setExpectedException('BadFunctionCallException');
 		$retVal = $this->cut->withoutAnnotationThrowsException();
 	}
 

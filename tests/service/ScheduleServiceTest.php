@@ -25,7 +25,6 @@ namespace OCA\EasyBackup\Controller;
 
 use \OCA\EasyBackup\BaseTestCase;
 
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
@@ -68,7 +67,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('hours_01'));
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->add(new \DateInterval('PT2H'))->format('H'));
 		$retVal = $this->cut->isToBeExecutedNow($firstRunAtHour);
 		$this->assertFalse($retVal);
@@ -79,7 +78,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('hours_01'));
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->format('H'));
 		$retVal = $this->cut->isToBeExecutedNow($firstRunAtHour);
 		$this->assertTrue($retVal);
@@ -90,7 +89,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('days_01'));
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->format('H'));
 
 		$yesterday = $now->sub(new \DateInterval('P1D'));
@@ -103,7 +102,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('days_01'));
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->format('H'));
 
 		$twelveHoursAgo = $now->sub(new \DateInterval('PT12H'));
@@ -116,7 +115,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('hours_02'));
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->add(new \DateInterval('PT2H'))->format('H'));
 
 		$twelveHoursAgo = $now->sub(new \DateInterval('PT12H'));
@@ -129,7 +128,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('hours_02'));
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->add(new \DateInterval('PT2H'))->format('H'));
 
 		$twelveHoursAgo = $now->sub(new \DateInterval('PT1H'));
@@ -139,7 +138,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testIsToBeExecutedNow7() {
 		// Executed 12h before, scheduled to run the current day of week, time is due
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('dayofweek_' . $now->format('w')));
@@ -153,7 +152,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testIsToBeExecutedNow8() {
 		// Executed 12h before, scheduled to run the current day of week, time is not due
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('dayofweek_' . $now->format('w')));
@@ -167,7 +166,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testIsToBeExecutedNow9() {
 		// Executed 12h before, scheduled to run the current day of month, time is due
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('dayofmonth_' . $now->format('m')));
@@ -181,7 +180,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testIsToBeExecutedNow10() {
 		// Executed 12h before, scheduled to run another day of month time is due
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))
@@ -198,7 +197,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		// Wrong schedule parameter
 		$this->setExpectedException('\OCA\EasyBackup\EasyBackupException');
 
-		$now = new \DateTime();
+		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 
 		$this->configServiceMock->expects($this->once())->method('getAppValue')
 		->with($this->equalTo('SCHEDULED'))->will($this->returnValue('invalidformat'));

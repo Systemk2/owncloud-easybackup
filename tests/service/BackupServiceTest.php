@@ -25,7 +25,6 @@ namespace OCA\EasyBackup\Service;
 
 use \OCA\EasyBackup\BaseTestCase;
 
-require_once (__DIR__ . '/../classloader.php');
 require_once (__DIR__ . '/../basetestcase.php');
 
 class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
