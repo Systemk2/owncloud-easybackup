@@ -75,23 +75,28 @@ class ConfigService {
 	 *
 	 * @param string $updateHost
 	 */
-	public function setUpdateHost($updateHost) {
-		$this->setAppValue('UPDATE_HOST', $updateHost);
+	public function setHostUserName($updateHost) {
+		$this->setAppValue('HOST_USER_NAME', $updateHost);
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function getUpdateHost() {
-		return $this->getAppValue('UPDATE_HOST');
+	public function getHostUserName() {
+		return $this->getAppValue('HOST_USER_NAME');
+	}
+
+	public function getHost() {
+		$user = $this->getAppValue('HOST_USER_NAME');
+		return  "$user@$user.trustedspace.de";
 	}
 
 	/**
 	 *
 	 * @return string
 	 */
-	public function getPrivateKeyFilname() {
+	public function getPrivateKeyFilename() {
 		return $this->getDataDir() . '/id_rsa';
 	}
 
@@ -170,6 +175,7 @@ class ConfigService {
 	 */
 	public function getScheduleTime() {
 		$scheduleTime = intval($this->getAppValue('SCHEDULE_TIME', - 1));
+		$timezoneOffset = \OC::$session->get('timezone');
 		if ($timezoneOffset && $scheduleTime >= 0) {
 			$scheduleTime += $timezoneOffset;
 			if ($scheduleTime < 0) {
@@ -267,5 +273,19 @@ class ConfigService {
 	public function unregister(IJob $job) {
 		$jobList = \OC::$server->getJobList();
 		$jobList->remove($job);
+	}
+
+	/**
+	 * @param string $publicKey
+	 */
+	public function setPublicKey($publicKey) {
+		$this->setAppValue('PUBLIC_KEY', $publicKey);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPublicKey() {
+		return $this->getAppValue('PUBLIC_KEY');
 	}
 }

@@ -21,7 +21,7 @@
 
 (function($) {
 	var easyBackup = {
-		hostNameRegExp : /^[A-z0-9]+@[A-z0-9]+\.[A-z0-9]+\.[a-z]{2,3}$/,
+		userNameRegExp : /^[a-z]+[0-9]+$/,
 		toggleStatusDetails : function() {
 			if ($(easybackup_status_details).css('display') == 'none') {
 				$('#easybackup_status_details').show('blind');
@@ -29,25 +29,25 @@
 				$('#easybackup_status_details').hide('blind');
 			}
 		},
-		setBackupHost : function() {
-			var span = $('#easybackup_host');
-			var hostName = $('#easybackup_hostName');
-			var oldBackupHost = hostName.text();
+		setUserName : function() {
+			var span = $('#easybackup_userNameEdit');
+			var hostName = $('#easybackup_userName');
+			var oldUserName = hostName.text().trim();
 			var oldHtml = span.html();
 			$(span).html('');
 			var input = $('<input type="text" class="easybackup_input"/>').val(
-					oldBackupHost);
+					oldUserName);
 			var form = $('<form></form>');
 			form.append(input);
 			span.append(form);
 			input.focus();
 
 			var checkInput = function() {
-				var backupHostName = input.val().trim();
-				if (!easyBackup.hostNameRegExp
-						.test(backupHostName)) {
+				var backupUserName = input.val().trim();
+				if (!easyBackup.userNameRegExp
+						.test(backupUserName)) {
 					throw t('easybackup',
-							'Hostname must be of format user@host.domain.xyz');
+							'Username must be of format "user123"');
 				}
 				return true;
 			};
@@ -66,10 +66,10 @@
 				}
 
 				try {
-					var newBackupHost = input.val();
+					var newUserName = input.val();
 					input.tipsy('hide');
 					// form.remove();
-					if (newBackupHost === oldBackupHost) {
+					if (newUserName === oldUserName) {
 						restore();
 					} else {
 						checkInput();
@@ -77,21 +77,21 @@
 							return false;
 						}
 						form.remove();
-						$(span).html(newBackupHost);
+						$(span).html(newUserName);
 						easyBackup.putJSONRequest(
-								'/apps/easybackup/backuphost', {
-									oldBackupHost : oldBackupHost,
-									newBackupHost : newBackupHost
+								'/apps/easybackup/username', {
+									oldUserName : oldUserName,
+									newUserName : newUserName
 								}, span, function(data) {
 									restore();
-									$('#easybackup_hostName').html(
-											data.newBackupHost);
+									$('#easybackup_userName').html(
+											data.newUserName);
 									$('#easybackup_preconditions').html(
 											data.preconditionsHtml);
 								}, function() {
 									restore();
-									$('#easybackup_hostName').html(
-											oldBackupHost);
+									$('#easybackup_userName').html(
+											oldUserName);
 								});
 					}
 				} catch (error) {
@@ -107,7 +107,7 @@
 				return false;
 			});
 			input.keyup(function(event) {
-				// verify backupHostName on typing
+				// verify backupUserName on typing
 				try {
 					checkInput();
 					input.tipsy('hide');
@@ -161,7 +161,7 @@
 			}
 			// Refresh status
 			$('#easybackup_preconditions').html(json.data.preconditionsHtml);
-			easyBackup.statusDetailsVisible = false;
+			$('#easybackup_publickeymanagement').html(json.data.publicKeyHtml);
 			OC.dialogs.info(t('easybackup',
 					'The new private key was successfully set'), t(
 					'easybackup', 'Upload finished'));
@@ -246,9 +246,19 @@
 					'/apps/easybackup/schedulebackup', 
 					{}, $('#easyBackup_startBackup'));
 		},
+		createSshKey : function() {
+			easyBackup.putJSONRequest(
+					'/apps/easybackup/createsshkey', 
+					{}, $('#easyBackup_createKey'), function(data) {
+						$('#easybackup_publickeymanagement').html(data.publicKeyHtml);
+						OC.dialogs.info(t('easybackup',
+						'A new public/private key pair has been created, please copy the public key to your trustedspace.de account'),
+						t('easybackup', 'Success'));
+					});
+		},
 		editRestoreTextArea : function() {
 			var input = $(this).val().trim();
-			if($(this).attr('default') == input) {
+			if($(this).attr('data-default') == input) {
 				input = "";
 				$(this).val("");
 			}
@@ -277,8 +287,8 @@
 
 	$(document).ready(
 			function() {
-				$('#easybackup_host').on('click',
-						easyBackup.setBackupHost);
+				$('#easybackup_userNameEdit').on('click',
+						easyBackup.setUserName);
 				$('#easybackup_upload_key').on('change',
 						easyBackup.submitKeyFile);
 				$('#easybackup_status').on('click',
@@ -298,6 +308,8 @@
 						easyBackup.editRestoreTextArea);
 				$('#easybackup_restore').on('click',
 						easyBackup.submitRestoreCommand);
-				$('#fidelbackup_explain_sshkey').tipsy({html : true, title: 'helptext'});
+				$('#fidelbackup_explain_sshkey').tipsy({html : true, title: 'data-helptext'});
+				$('#easyBackup_createKey').on('click',
+						easyBackup.createSshKey);
 	});
 })(jQuery);

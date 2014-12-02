@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,43 +21,53 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Service;
 
 use \OCA\EasyBackup\BaseTestCase;
+use OCA\EasyBackup\ShellExecResult;
 
 require_once (__DIR__ . '/../basetestcase.php');
 
 class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
-
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	private $cut;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	private $configServiceMock;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\RunOnceJob
 	 */
 	private $runOnceJobMock;
 
+	/**
+	 *
+	 * @var \OCA\EasyBackup\Service\ShellExecService
+	 */
+	private $shellExecServiceMock;
+
 	protected function setUp() {
 		parent::setUp();
 
-// 		$this->runOnceJobMock = $runOnceJobMock = $this->getMockBuilder('\OCA\EasyBackup\RunOnceJob')->disableOriginalConstructor()->getMock();
-// 		$this->container->registerService('RunOnceJob', function($c) use ($runOnceJobMock) {
-// 			return $runOnceJobMock;
-// 		});
-
 		$this->configServiceMock = $configServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ConfigService')->disableOriginalConstructor()->getMock();
-		$this->container->registerService('ConfigService', function($c) use ($configServiceMock) {
-			return $configServiceMock;
-		});
+		$this->container->registerService('ConfigService',
+				function ($c) use($configServiceMock) {
+					return $configServiceMock;
+				});
+
+		$this->shellExecServiceMock = $shellExecServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ShellExecService')->getMock();
+		$this->container->registerService('ShellExecService',
+				function ($c) use($shellExecServiceMock) {
+					return $shellExecServiceMock;
+				});
 
 		$this->cut = $this->container->query('BackupService');
 	}
@@ -74,7 +85,8 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testExecuteBackupPositive() {
 		$this->configServiceMock->expects($this->atLeastOnce())->method('getLogfileName')->will($this->returnValue('/dev/null'));
-		$this->configServiceMock->expects($this->once())->method('register')->with($this->isInstanceOf('\OCA\EasyBackup\RunOnceJob'), $this->stringContains('BackupCommandHandler', true));
+		$this->configServiceMock->expects($this->once())->method('register')->with(
+				$this->isInstanceOf('\OCA\EasyBackup\RunOnceJob'), $this->stringContains('BackupCommandHandler', true));
 		$this->cut->executeBackup();
 	}
 
@@ -86,10 +98,9 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		unlink($testFile);
 	}
 
-
 	public function testCheckBackupRunningNegative() {
-		$this->configServiceMock->expects($this->once())->method('getAppValue')
-		->with($this->equalTo('BACKUP_RUNNING'))->will($this->returnValue('false'));
+		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('BACKUP_RUNNING'))->will(
+				$this->returnValue('false'));
 		$retVal = $this->cut->checkBackupRunning();
 		$this->assertEquals(false, $retVal);
 	}
@@ -97,68 +108,89 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 	public function testCheckBackupRunningPositive() {
 		$testFile = '/tmp/phptest';
 		file_put_contents($testFile, 'Test');
-		$this->configServiceMock->expects($this->once())->method('getLogfileName')
-		->will($this->returnValue($testFile));
-		$this->configServiceMock->expects($this->once())->method('getAppValue')
-		->with($this->equalTo('BACKUP_RUNNING'))->will($this->returnValue('true'));
+		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue($testFile));
+		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('BACKUP_RUNNING'))->will(
+				$this->returnValue('true'));
 		$retVal = $this->cut->checkBackupRunning();
 		unlink($testFile);
 		$this->assertEquals(true, $retVal);
 	}
 
 	public function testCheckBackupRunningNegativeTooLongInactivity() {
-		$this->configServiceMock->expects($this->once())->method('getLogfileName')
-		->will($this->returnValue(__DIR__ . '/../resource/empty_file.txt'));
-		$this->configServiceMock->expects($this->once())->method('getAppValue')
-		->with($this->equalTo('BACKUP_RUNNING'))->will($this->returnValue('true'));
-		$this->configServiceMock->expects($this->once())->method('setAppValue')
-		->with($this->equalTo('BACKUP_RUNNING'), 'false');
+		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will(
+				$this->returnValue(__DIR__ . '/../resource/empty_file.txt'));
+		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('BACKUP_RUNNING'))->will(
+				$this->returnValue('true'));
+		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'), 'false');
 		$retVal = $this->cut->checkBackupRunning();
 		$this->assertEquals(false, $retVal);
 	}
 
-
 	public function testFinishBackupSuccess() {
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue('/dev/null'));
 		$this->translationMock->expects($this->once())->method('t')->with($this->stringContains('success'));
-		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'), $this->equalTo('false'));
+		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'),
+				$this->equalTo('false'));
 		$this->cut->finishBackup(true);
 	}
 
 	public function testFinishBackupFailure() {
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue('/dev/null'));
 		$this->translationMock->expects($this->once())->method('t')->with($this->stringContains('error'));
-		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'), $this->equalTo('false'));
+		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'),
+				$this->equalTo('false'));
 		$this->cut->finishBackup(false);
 	}
 
-	public function testIsHostNameValidPositive1() {
-		$this->configServiceMock->expects($this->once())->method('getUpdateHost')
-		->will($this->returnValue('test1@test.test.com'));
-		$this->assertTrue($this->cut->isHostNameValid());
+	public function testIsHostNameValidPositive() {
+		$this->configServiceMock->expects($this->once())->method('getHostUserName')->will($this->returnValue('test1'));
+		$this->assertTrue($this->cut->isHostUserNameValid());
 	}
 
-	public function testIsHostNameValidPositive2() {
-		$this->configServiceMock->expects($this->once())->method('getUpdateHost')
-		->will($this->returnValue('test1@test.test.de'));
-		$this->assertTrue($this->cut->isHostNameValid());
+	public function testIsHostNameValidNegative() {
+		$this->configServiceMock->expects($this->once())->method('getHostUserName')->will($this->returnValue('test'));
+		$this->assertFalse($this->cut->isHostUserNameValid());
 	}
 
 	public function testIsHostNameValidNegative1() {
-		$this->configServiceMock->expects($this->once())->method('getUpdateHost')
-		->will($this->returnValue('test.test.de'));
-		$this->assertFalse($this->cut->isHostNameValid());
+		$this->configServiceMock->expects($this->once())->method('getHostUserName')->will($this->returnValue(null));
+		$this->assertFalse($this->cut->isHostUserNameValid());
 	}
 
 	public function testIsHostNameValidNegative2() {
-		$this->configServiceMock->expects($this->once())->method('getUpdateHost')
-		->will($this->returnValue('test@test.test.dexx'));
-		$this->assertFalse($this->cut->isHostNameValid());
+		$this->configServiceMock->expects($this->once())->method('getHostUserName')->will($this->returnValue(''));
+		$this->assertFalse($this->cut->isHostUserNameValid());
 	}
 
-	public function testIsHostNameValidNegative3() {
-		$this->configServiceMock->expects($this->once())->method('getUpdateHost')
-		->will($this->returnValue('test@test.de'));
-		$this->assertFalse($this->cut->isHostNameValid());
+	public function testGetPublicSshKeyFromPrivateKeyNoSshKeygen() {
+		$this->shellExecServiceMock->expects($this->once())->method('shellExec')->with($this->equalTo('which ssh-keygen'))->will(
+				$this->returnValue(new ShellExecResult(1, array ())));
+		$publicKey = $this->cut->getPublicSshKeyFromPrivateKey();
+		$this->assertNull($publicKey);
+	}
+
+	public function testGetPublicSshKeyFromPrivateKeyNoPrivateKeyFile() {
+		$this->shellExecServiceMock->expects($this->once())->method('shellExec')->with($this->equalTo('which ssh-keygen'))->will(
+				$this->returnValue(new ShellExecResult(0, array ())));
+		$this->configServiceMock->expects($this->once())->method('getPrivateKeyFilename')->will(
+				$this->returnValue('not_existent_file'));
+		$publicKey = $this->cut->getPublicSshKeyFromPrivateKey();
+		$this->assertNull($publicKey);
+	}
+
+	public function testGetPublicSshKeyFromPrivateKeyOk() {
+		$keyFileName = __DIR__ . '/../resource/private_key.txt';
+		$this->shellExecServiceMock->expects($this->at(0))->method('shellExec')->with($this->equalTo('which ssh-keygen'))->will(
+				$this->returnValue(new ShellExecResult(0, array ())));
+		$this->configServiceMock->expects($this->once())->method('getPrivateKeyFilename')->will(
+				$this->returnValue($keyFileName));
+		$this->shellExecServiceMock->expects($this->at(1))->method('shellExec')
+		->with($this->equalTo("ssh-keygen -P '' -q -y -f '$keyFileName'"))
+		->will(
+				$this->returnValue(new ShellExecResult(0, array (
+						'ssh-rsa AAAAB'
+				))));
+		$publicKey = $this->cut->getPublicSshKeyFromPrivateKey();
+ 		$this->assertEquals('ssh-rsa AAAAB', $publicKey);
 	}
 }

@@ -71,14 +71,14 @@ class ConfigControllerTest extends \OCA\EasyBackup\BaseTestCase {
 	}
 
 	public function testUpdateBackupHostHostNameValid() {
-		$this->configServiceMock->expects($this->once())->method('setUpdateHost')->with($this->equalTo('newHost'));
-		$this->backupServiceMock->expects($this->once())->method('isHostNameValid')->will($this->returnValue(true));
+		$this->configServiceMock->expects($this->once())->method('setHostUserName')->with($this->equalTo('newHost'));
+		$this->backupServiceMock->expects($this->once())->method('isHostUserNameValid')->will($this->returnValue(true));
 		$this->responseFactoryMock->expects($this->once())->method('createJSONSuccessResponse')
-		->with($this->equalTo(array('newBackupHost' => 'newHost', 'preconditionsHtml' => null)));
+		->with($this->equalTo(array('newUserName' => 'newHost', 'preconditionsHtml' => null)));
 		$this->responseFactoryMock->expects($this->once())->method('createTemplateResponse')
 		->will($this->returnValue($this->templateResponseMock));
 
-		$this->cut->updateBackupHost('oldHost', 'newHost');
+		$this->cut->updateHostUserName('oldHost', 'newHost');
 	}
 
 	public function testUploadSshKeyOk() {
@@ -88,7 +88,7 @@ class ConfigControllerTest extends \OCA\EasyBackup\BaseTestCase {
 		->with($this->equalTo('easybackup_sshKeyFile'))
 		->will($this->returnValue(array('tmp_name' => $keyFileName)));
 
-		$this->configServiceMock->expects($this->once())->method('getPrivateKeyFilname')
+		$this->configServiceMock->expects($this->once())->method('getPrivateKeyFilename')
 		->will($this->returnValue($uploadedFileName));
 
 		$this->backupServiceMock->expects($this->once())->method('validatePrivateSshKey')

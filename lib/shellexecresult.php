@@ -1,5 +1,4 @@
 <?php
-
 /**
  * ownCloud - EasyBackup
  *
@@ -20,28 +19,32 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCA\EasyBackup;
 
-interface ICommandHandler {
+/**
+ * Container class for result of shell command execution
+ *
+ */
+class ShellExecResult {
 
-	/**
-	 *
-	 * @return string the shell command to be executed
-	 */
-	public function getCommand();
+	private $retVal;
+	private $output;
 
-	/**
-	 * Method to be executed after command execution
-	 *
-	 * @param
-	 *        	boolean <code>true</code> if the previous command execution was successful
-	 */
-	public function postExec($arg);
+	public function __construct($retVal, array $output) {
+		$this->retVal = $retVal;
+		$this->output = $output;
+	}
 
-	/**
-	 * Should be executed before command execution
-	 *
-	 * @return <code>true</code> if the pre-execution was successful and the command can be executed
-	 */
-	public function preExec();
+	public function isOk() {
+		return $this->retVal === 0;
+	}
+
+	public function getRetVal() {
+		return $this->retVal;
+	}
+
+	public function getOutput() {
+		return $this->output;
+	}
 }

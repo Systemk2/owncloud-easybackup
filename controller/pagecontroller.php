@@ -95,7 +95,7 @@ class PageController extends BaseController {
 
 		$parameters = array(
 				'statusContainer' => $statusContainer,
-				'backupHostName' => $this->configService->getUpdateHost(),
+				'userName' => $this->configService->getHostUserName(),
 				'keyUploadUrl' => $this->urlGenerator->linkToRoute('easybackup.config.uploadSshKey'),
 				'schedule' => $this->scheduleService,
 				'scheduleTime' => $this->configService->getScheduleTime(),
@@ -103,7 +103,9 @@ class PageController extends BaseController {
 				'configurationUrl' => $this->urlGenerator->linkToRoute('easybackup.page.configuration'),
 				'restoreUrl' => $this->urlGenerator->linkToRoute('easybackup.page.restore'),
 				'logfileUrl' => $this->urlGenerator->linkToRoute('easybackup.logfileview.getCompleteLogfile'),
-				'subTemplate' => $subTemplate
+				'subTemplate' => $subTemplate,
+				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
+				'publicKey' => $this->configService->getPublicKey()
 		);
 
 		return $parameters;

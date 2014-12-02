@@ -30,15 +30,19 @@ $application->registerRoutes($this, array(
 				array(	'name' => 'page#configuration',
 						'url' => '/',
 						'verb' => 'GET'),
-				// "/" -> PageController::restore()
+				// "/restore" -> PageController::restore()
 				array(	'name' => 'page#restore',
 						'url' => '/restore',
 						'verb' => 'GET'),
-				// /backuphost -> ConfigController::updateBackupHost(string $oldBackupHost, string $newBackupHost)
-				array(	'name' => 'config#updateBackupHost',
-						'url' => '/backuphost',
+				// /createsshkey -> ConfigController::createSshKey()
+				array(	'name' => 'config#createSshKey',
+						'url' => '/createsshkey',
 						'verb' => 'PUT'),
-				// /sshkey -> ConfigController::uploadSshKey()
+				// /username -> ConfigController::updateHostUserName(string $oldUserName, string $newUserName)
+				array(	'name' => 'config#updateHostUserName',
+						'url' => '/username',
+						'verb' => 'PUT'),
+				// /uploadkey -> ConfigController::uploadSshKey()
 				array(	'name' => 'config#uploadSshKey',
 						'url' => '/uploadkey',
 						'verb' => 'POST'),

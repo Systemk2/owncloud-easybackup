@@ -11,7 +11,7 @@
 	<?php p($l->t('Copy/paste your recovery config here') . ':');?>
 </div>
 <div>
-	<textarea id="easybackup_restore_input" default="<?php $default = $l->t('Put your config here...'); p($default); ?>">
+	<textarea id="easybackup_restore_input" data-default="<?php $default = $l->t('Put your config here...'); p($default); ?>">
 		<?php p($default); ?>
 	</textarea>
 
@@ -22,7 +22,7 @@
 </div>
 <div>
 
-	<button id="easybackup_restore" disabled="true">
+	<button id="easybackup_restore" disabled>
 		<?php
 		p($l->t('Restore files'));
 		?>

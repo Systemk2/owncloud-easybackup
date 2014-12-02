@@ -81,7 +81,8 @@ class Application extends App {
 					$c->query('Logger'),
 					$c->query('BackupService'),
 					$c->query('ConfigService'),
-					$c->query('ResponseFactory')
+					$c->query('ResponseFactory'),
+					$c->query('TranslationService')
 			);
 		});
 

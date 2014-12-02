@@ -32,10 +32,16 @@ class RestoreCommandHandler implements  ICommandHandler {
 	private $container;
 
 
+	/* (non-PHPdoc)
+	 * @see \OCA\EasyBackup\ICommandHandler::getCommand()
+	 */
 	public function getCommand() {
 		return $this->getContainer()->query('ConfigService')->getRestoreCommand();
 	}
 
+	/* (non-PHPdoc)
+	 * @see \OCA\EasyBackup\ICommandHandler::preExec()
+	 */
 	public function preExec() {
 		$logfileName = $this->getContainer()->query('ConfigService')->getLogfileName();
 		$date = date('Y-m-d H:i:s e');
@@ -43,9 +49,12 @@ class RestoreCommandHandler implements  ICommandHandler {
 		return true;
 	}
 
+	/* (non-PHPdoc)
+	 * @see \OCA\EasyBackup\ICommandHandler::postExec()
+	 */
 	public function postExec($arg) {
 		$backupService = $this->getContainer()->query('BackupService');
-		$backupService->finishRestore($arg === 0);
+		$backupService->finishRestore($arg);
 	}
 
 	private function getContainer() {

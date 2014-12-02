@@ -74,15 +74,15 @@ class ShellExecServiceTest extends \OCA\EasyBackup\BaseTestCase {
 	}
 
 	public function testRunSuccessCallback() {
-		TestCommandHandler::$test = 999;
+		TestCommandHandler::$test = 0;
 		$retVal = $this->cut->run('OCA\EasyBackup\TestCommandHandler');
-		$this->assertEquals(0, $retVal);
-		$this->assertEquals(0, TestCommandHandler::$test);
+		$this->assertEquals(true, $retVal);
+		$this->assertEquals(true, TestCommandHandler::$test);
 	}
 
 	public function testRunFailureCallback() {
-		TestCommandHandlerFailure::$test = 999;
+		TestCommandHandlerFailure::$test = 1;
 		$retVal = $this->cut->run('OCA\EasyBackup\TestCommandHandlerFailure');
-		$this->assertEquals(1, TestCommandHandlerFailure::$test);
+		$this->assertEquals(false, TestCommandHandlerFailure::$test);
 	}
 }

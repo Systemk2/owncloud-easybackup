@@ -20,22 +20,21 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Service;
 
 use \OCA\EasyBackup\EasyBackupException;
 use \OCA\EasyBackup\ICommandHandler;
+use \OCA\EasyBackup\ShellExecResult;
 
 class ShellExecService {
 
 	/**
+	 *
 	 * @param string $command
-	 * @return int
+	 * @return \OCA\EasyBackup\ShellExecResult
 	 */
 	public function shellExec($command) {
 		exec($command, $output, $returnVal);
-		return $returnVal;
+		return new ShellExecResult($returnVal, $output);
 	}
-
-
 }

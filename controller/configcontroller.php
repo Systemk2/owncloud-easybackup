@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,15 +20,13 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Controller;
-
-
 
 use \OCA\EasyBackup\EasyBackupException;
 use \OCA\EasyBackup\ResponseFactory;
 use \OCA\EasyBackup\Service\BackupService;
 use \OCA\EasyBackup\Service\ConfigService;
+use \OCA\EasyBackup\StatusContainer;
 
 use \OCP\ILogger;
 use \OCP\IRequest;
@@ -35,21 +34,19 @@ use \OCP\IRequest;
 class ConfigController extends BaseController {
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
 
-	public function __construct($appName,
-			IRequest $request,
-			ILogger $logger,
-			BackupService $backupService,
-			ConfigService $configService,
-			ResponseFactory $responseFactory) {
+	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService,
+			ConfigService $configService, ResponseFactory $responseFactory) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->backupService = $backupService;
 		$this->configService = $configService;
@@ -57,20 +54,35 @@ class ConfigController extends BaseController {
 
 	/**
 	 * @ControllerManaged
-	 *
-	 * @param string $oldBackupHost
-	 * @param string $newBackupHost
 	 */
-	protected function updateBackupHost($oldBackupHost, $newBackupHost) {
-		$this->configService->setUpdateHost(trim($newBackupHost));
-		if(!$this->backupService->isHostNameValid()) {
+	protected function createSshKey() {
+		$publicKey = $this->backupService->createSshKey($this->configService->getPrivateKeyFilename());
+		$this->configService->setPublicKey($publicKey);
+		return array (
+				'preconditionsHtml' => $this->renderPreconditionsHtml(),
+				'publicKeyHtml' => $this->renderPublicKeyHtml()
+		);
+	}
+
+	/**
+	 * @ControllerManaged
+	 *
+	 * @param string $oldUserName
+	 * @param string $newUserName
+	 */
+	protected function updateHostUserName($oldUserName, $newUserName) {
+		$this->configService->setHostUserName(trim($newUserName));
+		if (! $this->backupService->isHostUserNameValid()) {
 			throw new \OCA\EasyBackup\EasyBackupException('Hostname is not valid');
 		}
 
 		$this->backupService->updateBackupCommand();
 
 		$preconditionsHtml = $this->renderPreconditionsHtml();
-		return(array('newBackupHost' => trim($newBackupHost), 'preconditionsHtml' => $preconditionsHtml));
+		return (array (
+				'newUserName' => trim($newUserName),
+				'preconditionsHtml' => $preconditionsHtml
+		));
 	}
 
 	/**
@@ -81,24 +93,27 @@ class ConfigController extends BaseController {
 	 */
 	protected function uploadSshKey() {
 		$file = $this->request->getUploadedFile('easybackup_sshKeyFile');
-		if(!$file || !file_exists($file['tmp_name'])) {
+		if (! $file || ! file_exists($file ['tmp_name'])) {
 			throw new EasyBackupException('Uploaded file not found');
 		}
-		$key = file_get_contents($file['tmp_name']);
-		if($key === false || strlen($key) == 0) {
+		$key = file_get_contents($file ['tmp_name']);
+		if ($key === false || strlen($key) == 0) {
 			throw new EasyBackupException('Uploaded file is empty');
 		}
-		if(!$this->backupService->validatePrivateSshKey($key)) {
+		if (! $this->backupService->validatePrivateSshKey($key)) {
 			throw new EasyBackupException('Key is not well-formed');
 		}
-		$filename = $this->configService->getPrivateKeyFilname();
-		if(!file_put_contents($filename, $key)) {
+		$filename = $this->configService->getPrivateKeyFilename();
+		if (! file_put_contents($filename, $key)) {
 			throw new \Exception('Could not store private key in ' . $filename);
 		}
 		chmod($filename, 0600);
-
-		$preconditionsHtml = $this->renderPreconditionsHtml();
-		return array('preconditionsHtml' => $preconditionsHtml);
+		$publicKey = $this->backupService->getPublicSshKeyFromPrivateKey();
+		$this->configService->setPublicKey($publicKey);
+		return array (
+				'preconditionsHtml' => $this->renderPreconditionsHtml(),
+				'publicKeyHtml' => $this->renderPublicKeyHtml()
+		);
 	}
 
 	/**
@@ -121,11 +136,19 @@ class ConfigController extends BaseController {
 
 	private function renderPreconditionsHtml() {
 		$statusContainer = $this->backupService->createStatusInformation();
-		$parameters = array(
+		$parameters = array (
 				'statusContainer' => $statusContainer
 		);
 		return $this->renderHtml('preconditions.inc', $parameters);
 	}
 
+	private function renderPublicKeyHtml() {
+		$statusContainer = $this->backupService->createStatusInformation();
+		$parameters = array (
+				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
+				'publicKey' => $this->configService->getPublicKey()
+		);
+		return $this->renderHtml('publickey.inc', $parameters);
+	}
 }
 

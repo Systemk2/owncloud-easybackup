@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,57 +20,55 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Service;
 
 use OCA\EasyBackup\EasyBackupException;
-
 use \OCA\EasyBackup\RunOnceJob;
 use \OCA\EasyBackup\ScheduledBackupJob;
 use \OCA\EasyBackup\StatusContainer;
-
 use \OCP\IL10N;
 
 class BackupService {
-
 	const MAX_TIME_INTERVAL = 'PT15M'; // 15 Minutes
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\RunOnceJob
 	 */
 	protected $runOnceJob;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\ScheduledBackupJob
 	 */
 	protected $scheduledBackupJob;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\ScheduledRestoreJob
 	 */
 	protected $scheduledRestoreJob;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ShellExecService
 	 */
 	protected $shellExecService;
 
 	/**
+	 *
 	 * @var \OCP\IL10N
 	 */
 	protected $trans;
 
-	public function __construct(
-			RunOnceJob $runOnceJob,
-			ScheduledBackupJob $scheduledBackupJob,
-			ConfigService $configService,
-			ShellExecService $shellExecService,
-			IL10N $trans) {
+	public function __construct(RunOnceJob $runOnceJob, ScheduledBackupJob $scheduledBackupJob, ConfigService $configService,
+			ShellExecService $shellExecService, IL10N $trans) {
 		$this->runOnceJob = $runOnceJob;
 		$this->scheduledBackupJob = $scheduledBackupJob;
 		$this->configService = $configService;
@@ -82,44 +81,86 @@ class BackupService {
 	}
 
 	public function checkRsyncPresent() {
-		$returnVal = $this->shellExecService->shellExec('which rsync');
-		return $returnVal == 0;
+		$result = $this->shellExecService->shellExec('which rsync');
+		return $result->isOk();
 	}
 
 	public function checkRsyncExecutable() {
-		$returnVal = $this->shellExecService->shellExec('rsync --version 2>&1 > /dev/null');
-		return $returnVal == 0;
+		$result = $this->shellExecService->shellExec('rsync --version 2>&1 > /dev/null');
+		return $result->isOk();
 	}
-/*
-	public function checkMysqldumpPresent() {
-		$returnVal = $this->shellExecService->shellExec('which mysqldump');
-		return $returnVal == 0;
+	/*
+	 * public function checkMysqldumpPresent() {
+	 * $result = $this->shellExecService->shellExec('which mysqldump');
+	 * return $result->isOk();
+	 * }
+	 *
+	 * public function checkMysqldumpExecutable() {
+	 * $result = $this->shellExecService->shellExec('mysqldump --version 2>&1 > /dev/null');
+	 * return $result->isOk();
+	 * }
+	 */
+	public function isHostUserNameValid() {
+		$userName = $this->configService->getHostUserName();
+		return $this->matchUserNameRegexp($userName);
 	}
 
-	public function checkMysqldumpExecutable() {
-		$returnVal = $this->shellExecService->shellExec('mysqldump --version 2>&1 > /dev/null');
-		return $returnVal == 0;
-	}
-*/
-	public function isHostNameValid() {
-		$backupHostName = $this->configService->getUpdateHost();
-		return $this->matchHostNameRegexp($backupHostName);
+	private function matchUserNameRegexp($username) {
+		return preg_match('/^[a-z]+[0-9]+$/', $username) === 1;
 	}
 
-	private function matchHostNameRegexp($hostname) {
-		return preg_match('/^[A-z0-9]+@[A-z0-9]+\.[A-z0-9]+\.[a-z]{2,3}$/', $hostname) === 1;
+	public function isSshKeygenPresent() {
+		$result = $this->shellExecService->shellExec('which ssh-keygen');
+		return $result->isOk();
+	}
+
+	public function createSshKey($privateKeyFileName) {
+		$message = $this->trans->t('Private/public key pair could not be generated') . ': ';
+		if (! $this->isSshKeygenPresent()) {
+			$message .= $this->trans->t('The shell command "ssh-keygen" is not available');
+			throw new EasyBackupException($message);
+		}
+		$keyFilename = $this->configService->getPrivateKeyFilename();
+		unlink($keyFilename);
+		$result = $this->shellExecService->shellExec("ssh-keygen -P '' -q -t rsa -b 2048 -f '$keyFilename'");
+		if (! $result->isOk()) {
+			$message .= $this->trans->t('The shell command "ssh-keygen" yielded an error') . ': ' .
+					 implode(' ', $result->getOutput());
+			throw new EasyBackupException($message);
+		}
+		$publicKey = file_get_contents("$keyFilename.pub");
+		unlink("$keyFilename.pub");
+		chmod($keyFilename, 0600);
+		return $publicKey;
+	}
+
+	public function getPublicSshKeyFromPrivateKey() {
+		if (! $this->isSshKeygenPresent()) {
+			return null;
+		}
+		$keyFilename = $this->configService->getPrivateKeyFilename();
+		if (! file_exists($keyFilename)) {
+			return null;
+		}
+		$result = $this->shellExecService->shellExec("ssh-keygen -P '' -q -y -f '$keyFilename'");
+		if (! $result->isOk()) {
+			return null;
+		}
+		$output = $result->getOutput();
+		return $output [0];
 	}
 
 	public function updateBackupCommand() {
 		$dataDir = $this->configService->getDataDir();
+		$dataDirFolder = basename($dataDir);
 		$logfileName = $this->configService->getLogfileName();
-		$backupHostName = $this->configService->getUpdateHost();
-		$keyFileName = $this->configService->getPrivateKeyFilname();
+		$host = $this->configService->getHost();
+		$keyFileName = $this->configService->getPrivateKeyFilename();
 		$knownHostsFileName = $this->configService->getKnownHostsFileName();
 		$backupFolder = $this->configService->getDataDir();
-		$sshCommand = "ssh -q -i /home/owncloud/data/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
-		$rsyncOptions = "-rtgov -e '$sshCommand' --include=*/ --include=data/*/files/** --exclude=* --numeric-ids --delete --delete-excluded";
-		$rsyncCommand = "rsync $rsyncOptions $dataDir $backupHostName:";
+		$sshCommand = "ssh -q -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
+		$rsyncOptions = "-rtgov -e '$sshCommand' --include='$dataDirFolder' --include='$dataDirFolder/*/' --include='$dataDirFolder/*/files/***' --exclude=* --numeric-ids --delete --delete-excluded";
+		$rsyncCommand = "rsync $rsyncOptions $dataDir $host:";
 		$command = "$rsyncCommand >> $logfileName 2>&1";
 
 		$this->configService->setBackupCommand($command);
@@ -133,29 +174,25 @@ class BackupService {
 	public function executeBackup() {
 		$logfileName = $this->configService->getLogfileName();
 
-		// TODO: Check if backup is already scheduled
-		// TODO: Backup old logfile, before starting new one
 		$date = date('Y-m-d H:i:s e');
 		$this->configService->register($this->runOnceJob, '\OCA\EasyBackup\BackupCommandHandler');
-		file_put_contents($logfileName, "[$date] " . $this->trans->t('Executing backup at next CRON execution...') . "\n",  FILE_APPEND);
+		file_put_contents($logfileName, "[$date] " . $this->trans->t('Executing backup at next CRON execution...') . "\n",
+				FILE_APPEND);
 	}
 
 	public function scheduleBackupJob() {
 		$logfileName = $this->configService->getLogfileName();
-		// TODO: Check if backup is already scheduled
 		$date = date('Y-m-d H:i:s e');
 		$this->configService->register($this->scheduledBackupJob, '\OCA\EasyBackup\BackupCommandHandler');
-		file_put_contents($logfileName, "[$date] " . $this->trans->t('Backup job scheduled') . "\n",  FILE_APPEND);
+		file_put_contents($logfileName, "[$date] " . $this->trans->t('Backup job scheduled') . "\n", FILE_APPEND);
 	}
 
 	public function unScheduleBackupJob() {
 		$logfileName = $this->configService->getLogfileName();
-		// TODO: Check if backup is scheduled
 		$date = date('Y-m-d H:i:s e');
 		$this->configService->unregister($this->scheduledBackupJob);
-		file_put_contents($logfileName, "[$date] " . $this->trans->t('Backup job removed') . "\n",  FILE_APPEND);
+		file_put_contents($logfileName, "[$date] " . $this->trans->t('Backup job removed') . "\n", FILE_APPEND);
 	}
-
 
 	public function validatePrivateSshKey($key) {
 		// TODO: Add more sanity checks
@@ -163,34 +200,38 @@ class BackupService {
 	}
 
 	/**
+	 *
 	 * @param boolean $success
 	 */
 	public function finishBackup($success) {
 		$this->configService->setAppValue('BACKUP_RUNNING', 'false');
 		$logfileName = $this->configService->getLogfileName();
 		$date = date('Y-m-d H:i:s e');
-		if($success) {
+		if ($success) {
 			$message = "[$date] " . $this->trans->t('Backup finished successfully' . "\n");
 		} else {
 			$message = "[$date] " . $this->trans->t('Backup finished with errors' . "\n");
 		}
-		file_put_contents($logfileName, "\n$message",  FILE_APPEND);
+		file_put_contents($logfileName, "\n$message", FILE_APPEND);
 	}
 
 	/**
+	 *
 	 * @param boolean $success
 	 */
 	public function finishRestore($success) {
 		$logfileName = $this->configService->getLogfileName();
 		$date = date('Y-m-d H:i:s e');
-		if($success) {
+		if ($success) {
 			$message = "[$date] " . $this->trans->t('Restore finished successfully' . "\n");
 		} else {
 			$message = "[$date] " . $this->trans->t('Restore finished with errors' . "\n");
 		}
-		file_put_contents($logfileName, "\n$message",  FILE_APPEND);
+		file_put_contents($logfileName, "\n$message", FILE_APPEND);
 	}
+
 	/**
+	 *
 	 * @param boolean $running
 	 */
 	public function setBackupRunning($running) {
@@ -198,21 +239,22 @@ class BackupService {
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function checkBackupRunning() {
 		$running = $this->configService->getAppValue('BACKUP_RUNNING', 'false');
-		if($running == 'false') {
+		if ($running == 'false') {
 			return false;
 		}
 		$filename = $this->configService->getLogfileName();
-		if(file_exists($filename)) {
+		if (file_exists($filename)) {
 			$ts = filemtime($filename);
 		} else {
 			return false;
 		}
 		$lastLogfileEntry = new \DateTime('@' . $ts);
-		if($lastLogfileEntry->add(new \DateInterval(self::MAX_TIME_INTERVAL)) < new \DateTime()) {
+		if ($lastLogfileEntry->add(new \DateInterval(self::MAX_TIME_INTERVAL)) < new \DateTime()) {
 			// More than MAX_TIME_INTERVAL since the last logfile entry => we suppose the job is hung
 			$this->configService->setAppValue('BACKUP_RUNNING', 'false');
 			return false;
@@ -221,27 +263,39 @@ class BackupService {
 	}
 
 	/**
+	 *
 	 * @return \OCA\EasyBackup\StatusContainer
 	 */
 	public function createStatusInformation() {
 		$statusContainer = new StatusContainer();
 
-		$statusContainer->addStatus('safeMode', $this->checkSafeModeNotEnabled() ? StatusContainer::OK : StatusContainer::ERROR, $this->trans->t('safe mode may not be enabled'));
-		$statusContainer->addStatus('rsyncPresent', $this->checkRsyncPresent() ? StatusContainer::OK : StatusContainer::ERROR, $this->trans->t('rsync must be present in execution path'));
-		$statusContainer->addStatus('rsyncExecutable', $this->checkRsyncExecutable() ? StatusContainer::OK : StatusContainer::ERROR, $this->trans->t('rsync binary needs to be executable'));
-// 		$statusContainer->addStatus('mysqldumpPresent', $this->checkMysqldumpPresent() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('mysqldump binary is present in execution path'));
-// 		$statusContainer->addStatus('mysqldumpExecutable', $this->checkMysqldumpExecutable() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('mysqldump binary may be executed'));
-		$statusContainer->addStatus('osIsLinux', php_uname('s') == 'Linux' ? StatusContainer::OK : StatusContainer::ERROR, $this->trans->t('operating system must be Linux'));
-		$statusContainer->addStatus('cronAvailable', $this->configService->isCronEnabled() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('scheduled tasks should be executed via CRON'));
-		$statusContainer->addStatus('privateKeyPresent', file_exists($this->configService->getPrivateKeyFilname()) ? StatusContainer::OK : StatusContainer::ERROR, $this->trans->t('private key for backup authentication'));
-		$statusContainer->addStatus('hostNameValid', $this->isHostNameValid() ? StatusContainer::OK : StatusContainer::ERROR, $this->trans->t('host name validation'));
+		$statusContainer->addStatus('safeMode', $this->checkSafeModeNotEnabled() ? StatusContainer::OK : StatusContainer::ERROR,
+				$this->trans->t('safe mode may not be enabled'));
+		$statusContainer->addStatus('rsyncPresent', $this->checkRsyncPresent() ? StatusContainer::OK : StatusContainer::ERROR,
+				$this->trans->t('rsync must be present in execution path'));
+		$statusContainer->addStatus('rsyncExecutable',
+				$this->checkRsyncExecutable() ? StatusContainer::OK : StatusContainer::ERROR,
+				$this->trans->t('rsync binary needs to be executable'));
+		// $statusContainer->addStatus('mysqldumpPresent', $this->checkMysqldumpPresent() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('mysqldump binary is present in execution path'));
+		// $statusContainer->addStatus('mysqldumpExecutable', $this->checkMysqldumpExecutable() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('mysqldump binary may be executed'));
+		$statusContainer->addStatus('osIsLinux', php_uname('s') == 'Linux' ? StatusContainer::OK : StatusContainer::ERROR,
+				$this->trans->t('operating system must be Linux'));
+		$statusContainer->addStatus('cronAvailable',
+				$this->configService->isCronEnabled() ? StatusContainer::OK : StatusContainer::WARN,
+				$this->trans->t('scheduled tasks should be executed via CRON'));
+		$statusContainer->addStatus('privateKeyPresent',
+				file_exists($this->configService->getPrivateKeyFilename()) ? StatusContainer::OK : StatusContainer::ERROR,
+				$this->trans->t('private key for backup authentication'));
+		$statusContainer->addStatus('hostNameValid', $this->isHostUserNameValid() ? StatusContainer::OK : StatusContainer::ERROR,
+				$this->trans->t('host user name validation'));
 
 		return $statusContainer;
-
 	}
 
 	/**
-	 * @param string $restoreConfig JSON-Encoded
+	 *
+	 * @param string $restoreConfig
+	 *        	JSON-Encoded
 	 */
 	public function scheduleRestoreJob($restoreConfig) {
 		$c = json_decode($restoreConfig, true);
@@ -249,24 +303,21 @@ class BackupService {
 		// Get the parent of data directory
 		$dataDir = substr($dataDir, 0, strrpos($dataDir, DIRECTORY_SEPARATOR));
 		$logfileName = $this->configService->getLogfileName();
-		$restoreHostName = $c['backupuser'] . '@' . $c['backupserver'];
-		if(!$this->matchHostNameRegexp($restoreHostName)) {
-			throw new EasyBackupException($this->trans->t('Invalid user / server syntax'));
-		}
-		$keyFileName = $this->configService->getPrivateKeyFilname();
+		$restoreHostName = $c ['backupuser'] . '@' . $c ['backupserver'];
+		$keyFileName = $this->configService->getPrivateKeyFilename();
 		$knownHostsFileName = $this->configService->getKnownHostsFileName();
 		$restoreTargetFolder = $this->configService->getDataDir();
-		$sshCommand = "ssh -i /home/owncloud/data/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
+		$sshCommand = "ssh -q -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
 		$rsyncOptions = "-rtgov -e '$sshCommand' --numeric-ids --omit-dir-times";
 
-		foreach ($c['include'] as $include) {
+		foreach ( $c ['include'] as $include ) {
 			$rsyncOptions .= " --include='$include'";
 		}
 
-		foreach ($c['exclude'] as $exclude) {
+		foreach ( $c ['exclude'] as $exclude ) {
 			$rsyncOptions .= " --exclude='$exclude'";
 		}
-		$rsyncCommand = "rsync $rsyncOptions $restoreHostName:" . $c['restorebase'] . "  $dataDir ";
+		$rsyncCommand = "rsync $rsyncOptions $restoreHostName:" . $c ['restorebase'] . "  $dataDir ";
 		$command = "$rsyncCommand >> $logfileName 2>&1";
 
 		$this->configService->setRestoreCommand($command);
@@ -277,5 +328,4 @@ class BackupService {
 		file_put_contents($logfileName, "[$date] " . $this->trans->t('Restore job will be executed with next CRON') . "\n",
 				FILE_APPEND);
 	}
-
 }

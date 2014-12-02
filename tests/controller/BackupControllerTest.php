@@ -82,7 +82,7 @@ class BackupControllerTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->backupServiceMock->expects($this->never())->method('executeBackup');
 		$this->statusContainerMock->expects($this->once())->method('getOverallStatus')->will($this->returnValue(\OCA\EasyBackup\StatusContainer::ERROR));
 		$this->backupServiceMock->expects($this->once())->method('createStatusInformation')->will($this->returnValue($this->statusContainerMock));
-		$this->responseFactoryMock->expects($this->once())->method('createJSONBadRequestResponse')->with($this->equalTo('Not all preconditions are met, backup cannot be started'));
+		$this->responseFactoryMock->expects($this->once())->method('createJSONBadRequestResponse');
 		$this->cut->scheduleBackup();
 	}
 

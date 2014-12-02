@@ -29,6 +29,7 @@ use \OCA\EasyBackup\ResponseFactory;
 use \OCA\EasyBackup\Service\BackupService;
 use \OCA\EasyBackup\Service\ConfigService;
 
+use \OCP\IL10N;
 use \OCP\ILogger;
 use \OCP\IRequest;
 
@@ -44,15 +45,22 @@ class BackupController extends BaseController {
 	 */
 	protected $configService;
 
+	/**
+	 * @var \OCP\IL10N
+	 */
+	protected $trans;
+
 	public function __construct($appName,
 			IRequest $request,
 			ILogger $logger,
 			BackupService $backupService,
 			ConfigService $configService,
-			ResponseFactory $responseFactory) {
+			ResponseFactory $responseFactory,
+			IL10N $trans) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->backupService = $backupService;
 		$this->configService = $configService;
+		$this->trans = $trans;
 	}
 
 	/**
@@ -61,8 +69,7 @@ class BackupController extends BaseController {
 	protected function scheduleBackup() {
 		$statusContainer = $this->backupService->createStatusInformation();
 		if($statusContainer->getOverallStatus() == StatusContainer::ERROR) {
-			// TODO: translate
-			throw new EasyBackupException('Not all preconditions are met, backup cannot be started');
+			throw new EasyBackupException($this->trans->t('Not all preconditions are met, backup cannot be scheduled'));
 		}
 		$this->backupService->executeBackup();
 	}
@@ -75,8 +82,7 @@ class BackupController extends BaseController {
 	protected function setBackupScheduled($scheduled) {
 		$statusContainer = $this->backupService->createStatusInformation();
 		if($statusContainer->getOverallStatus() == StatusContainer::ERROR) {
-			// TODO: translate
-			throw new EasyBackupException('Not all preconditions are met, backup cannot be scheduled');
+			throw new EasyBackupException($this->trans->t('Not all preconditions are met, backup cannot be scheduled'));
 		}
 		$this->configService->setBackupScheduled($scheduled);
 		if($scheduled) {

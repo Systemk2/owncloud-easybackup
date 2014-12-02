@@ -43,10 +43,10 @@ class ShellExecRunnable implements IRunnable {
 	public function run($commandHandlerString) {
 		$commandHandler = new $commandHandlerString;
 		if($commandHandler->preExec()) {
-			$returnVal = $this->shellExecService->shellExec($commandHandler->getCommand());
-			$commandHandler->postExec($returnVal);
-			return $returnVal;
+			$result = $this->shellExecService->shellExec($commandHandler->getCommand());
+			$commandHandler->postExec($result->isOk());
+			return $result->isOk();
 		}
-		return -1;
+		return false;
 	}
 }

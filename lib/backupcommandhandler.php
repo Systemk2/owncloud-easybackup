@@ -48,9 +48,12 @@ class BackupCommandHandler implements  ICommandHandler {
 		return true;
 	}
 
+	/* (non-PHPdoc)
+	 * @see \OCA\EasyBackup\ICommandHandler::postExec()
+	 */
 	public function postExec($arg) {
 		$backupService = $this->getContainer()->query('BackupService');
-		$backupService->finishBackup($arg === 0);
+		$backupService->finishBackup($arg);
 	}
 
 	private function getContainer() {

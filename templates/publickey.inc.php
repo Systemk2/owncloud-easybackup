@@ -1,5 +1,4 @@
 <?php
-
 /**
  * ownCloud - EasyBackup
  *
@@ -20,28 +19,21 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-namespace OCA\EasyBackup;
+?>
 
-interface ICommandHandler {
+<div id="easybackup_publicKeyHint" <?php if(!$_['privateKeyOk']) print_unescaped('style="visibility: hidden"'); ?>>
+		<?php
+		p($l->t('In the TrustedSpace config wizard you are asked for a SSH public key.') . ' ');
+		if ($_ ['publicKey']) {
+			p($l->t('Copy the following key to enable your Owncloud server to access the backup account'));
+			print_unescaped('<textarea readonly>');
+			print_unescaped($_ ['publicKey']);
+			print_unescaped('</textarea>');
+		} else {
+			p(
+					$l->t(
+							'Copy the public key corresponding to the private key that you have uploaded to enable your Owncloud server to access the backup account'));
+		}
+		?>
+</div>
 
-	/**
-	 *
-	 * @return string the shell command to be executed
-	 */
-	public function getCommand();
-
-	/**
-	 * Method to be executed after command execution
-	 *
-	 * @param
-	 *        	boolean <code>true</code> if the previous command execution was successful
-	 */
-	public function postExec($arg);
-
-	/**
-	 * Should be executed before command execution
-	 *
-	 * @return <code>true</code> if the pre-execution was successful and the command can be executed
-	 */
-	public function preExec();
-}

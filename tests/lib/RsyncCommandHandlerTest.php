@@ -68,12 +68,12 @@ class BackupCommandHandlerTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testCallbackSuccess() {
 		$this->backupServiceMock->expects($this->once())->method('finishBackup')->with($this->equalTo(true));
-		$this->cut->postExec(0);
+		$this->cut->postExec(true);
 	}
 
 	public function testCallbackFailure() {
 		$this->backupServiceMock->expects($this->once())->method('finishBackup')->with($this->equalTo(false));
-		$this->cut->postExec(1);
+		$this->cut->postExec(false);
 	}
 
 	public function testPreExecFailure() {
