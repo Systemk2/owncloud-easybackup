@@ -28,6 +28,7 @@ use \OCA\EasyBackup\Service\ConfigService;
 
 use \OCP\ILogger;
 use \OCP\IRequest;
+use OCA\EasyBackup\Service\BackupService;
 
 
 
@@ -39,14 +40,22 @@ class LogfileviewController extends BaseController {
 	protected $configService;
 
 
+	/**
+	 * @var \OCA\EasyBackup\Service\BackupService
+	 */
+	protected $backupService;
+
+
 	public function __construct(
 			$appName,
 			IRequest $request,
 			ILogger $logger,
 			ConfigService $configService,
+			BackupService $backupService,
 			ResponseFactory $responseFactory) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->configService = $configService;
+		$this->backupService = $backupService;
 	}
 
 	protected function tailFile() {
@@ -112,7 +121,8 @@ class LogfileviewController extends BaseController {
 		foreach (array_slice($wrappedLines, -($this->configService->getNumberOfLinesToDisplay())) as $line) {
 			$data .= str_replace("\n", '<br>', htmlentities($line));
 		}
-		return $this->responseFactory->createPlainTextResponse($data);
+		//return $this->responseFactory->createPlainTextResponse($data);
+		return array('html' => $data, 'backupExecutingOrWaitingForRun' => $this->backupService->isExecutingOrWaitingForRun());
 	}
 
 	/**

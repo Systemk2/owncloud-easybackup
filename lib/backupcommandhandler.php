@@ -40,7 +40,7 @@ class BackupCommandHandler implements  ICommandHandler {
 		$logfileName = $this->getContainer()->query('ConfigService')->getLogfileName();
 		$date = date('Y-m-d H:i:s e');
 		file_put_contents($logfileName, "[$date] Starting backup...\n",  FILE_APPEND);
-		if($this->getContainer()->query('BackupService')->checkBackupRunning()) {
+		if($this->getContainer()->query('BackupService')->isBackupExecuting()) {
 			file_put_contents($logfileName, "\n[$date] Backup already running, skipping backup execution\n",  FILE_APPEND);
 			return false;
 		}

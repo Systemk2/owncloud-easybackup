@@ -62,7 +62,7 @@ use \OCA\EasyBackup\StatusContainer;
 	</div>
 	<div id="easybackup_publickeymanagement">
 	<?php
-		print_unescaped($this->inc('publickey.inc'));
+	print_unescaped($this->inc('publickey.inc'));
 	?>
 	</div>
 	<div class="easybackup_explanation">
@@ -74,6 +74,7 @@ use \OCA\EasyBackup\StatusContainer;
 			<?php p($_['userName']); ?>
 		</span> <a class="action" href="#">&nbsp;<img src="<?php print_unescaped(\OCP\Util::imagePath('core', 'actions/rename.svg')); ?>" />
 	</a>
+
 </div>
 
 <!--
@@ -118,6 +119,7 @@ use \OCA\EasyBackup\StatusContainer;
 	<button id="easyBackup_startBackup">
 		<?php p($l->t('Start backup manually')); ?>
 	</button>
+	<span id="easybackup_waitbar_span" <?php if($_['isExecuting']) print_unescaped('class="easybackup_waitbar"'); ?>>&nbsp;</span>
 </div>
 <!-- Invisible target for upload response -->
 <iframe id="easybackup_upload_target" style="visibility: hidden; width: 1px; height: 1px" name="easybackup_upload_target" src=""></iframe>

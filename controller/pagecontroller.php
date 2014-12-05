@@ -105,7 +105,8 @@ class PageController extends BaseController {
 				'logfileUrl' => $this->urlGenerator->linkToRoute('easybackup.logfileview.getCompleteLogfile'),
 				'subTemplate' => $subTemplate,
 				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
-				'publicKey' => $this->configService->getPublicKey()
+				'publicKey' => $this->configService->getPublicKey(),
+				'isExecuting' => $this->backupService->isExecutingOrWaitingForRun()
 		);
 
 		return $parameters;

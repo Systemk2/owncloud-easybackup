@@ -92,6 +92,7 @@ class Application extends App {
 					$c->query('Request'),
 					$c->query('Logger'),
 					$c->query('ConfigService'),
+					$c->query('BackupService'),
 					$c->query('ResponseFactory')
 			);
 		});

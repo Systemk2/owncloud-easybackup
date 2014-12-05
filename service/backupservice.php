@@ -175,10 +175,16 @@ class BackupService {
 		$logfileName = $this->configService->getLogfileName();
 
 		$date = date('Y-m-d H:i:s e');
+		if($this->configService->isRegistered($this->runOnceJob)) {
+			file_put_contents($logfileName, "[$date] " . $this->trans->t('Job already waiting for next CRON execution...') . "\n",
+			FILE_APPEND);
+			return;
+		}
 		$this->configService->register($this->runOnceJob, '\OCA\EasyBackup\BackupCommandHandler');
 		file_put_contents($logfileName, "[$date] " . $this->trans->t('Executing backup at next CRON execution...') . "\n",
 				FILE_APPEND);
 	}
+
 
 	public function scheduleBackupJob() {
 		$logfileName = $this->configService->getLogfileName();
@@ -242,7 +248,7 @@ class BackupService {
 	 *
 	 * @return boolean
 	 */
-	public function checkBackupRunning() {
+	public function isBackupExecuting() {
 		$running = $this->configService->getAppValue('BACKUP_RUNNING', 'false');
 		if ($running == 'false') {
 			return false;
@@ -327,5 +333,18 @@ class BackupService {
 		$date = date('Y-m-d H:i:s e');
 		file_put_contents($logfileName, "[$date] " . $this->trans->t('Restore job will be executed with next CRON') . "\n",
 				FILE_APPEND);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isExecutingOrWaitingForRun() {
+		if($this->isBackupExecuting()) {
+			return true;
+		}
+		if($this->configService->isRegistered($this->runOnceJob)) {
+			return true;
+		}
+		return false;
 	}
 }

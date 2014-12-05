@@ -23,7 +23,7 @@
 	<div id="app-navigation">
 		<ul class="with-icon">
 			<li class="<?php print_unescaped($_['subTemplate'] == 'configuration.inc' ? 'active' : ''); ?>"><a href="<?php print_unescaped($_['configurationUrl']);?>"><?php p($l->t('Configuration')); ?> </a></li>
-			<li class="<?php print_unescaped($_['subTemplate'] == 'restore.inc' ? 'active' : ''); ?>"><a href="<?php print_unescaped($_['restoreUrl']);?>"><?php p($l->t('Restore')); ?> </a></li>
+			<li class="<?php print_unescaped($_['subTemplate'] == 'restore.inc' ? 'active' : ''); ?>"><a href="<?php print_unescaped($_['restoreUrl']);?>"><?php p($l->t('Recovery')); ?> </a></li>
 		</ul>
 	</div>
 	<div id="app-content">

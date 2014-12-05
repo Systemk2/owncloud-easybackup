@@ -21,7 +21,7 @@
  */
 ?>
 
-<div id="easybackup_publicKeyHint" <?php if(!$_['privateKeyOk']) print_unescaped('style="visibility: hidden"'); ?>>
+<span id="easybackup_publicKeyHint" <?php if(!$_['privateKeyOk']) print_unescaped('style="visibility: hidden"'); ?>>
 		<?php
 		p($l->t('In the TrustedSpace config wizard you are asked for a SSH public key.') . ' ');
 		if ($_ ['publicKey']) {
@@ -35,5 +35,5 @@
 							'Copy the public key corresponding to the private key that you have uploaded to enable your Owncloud server to access the backup account'));
 		}
 		?>
-</div>
+</span>
 

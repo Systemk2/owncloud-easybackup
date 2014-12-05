@@ -101,7 +101,7 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 	public function testCheckBackupRunningNegative() {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('BACKUP_RUNNING'))->will(
 				$this->returnValue('false'));
-		$retVal = $this->cut->checkBackupRunning();
+		$retVal = $this->cut->isBackupExecuting();
 		$this->assertEquals(false, $retVal);
 	}
 
@@ -111,7 +111,7 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue($testFile));
 		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('BACKUP_RUNNING'))->will(
 				$this->returnValue('true'));
-		$retVal = $this->cut->checkBackupRunning();
+		$retVal = $this->cut->isBackupExecuting();
 		unlink($testFile);
 		$this->assertEquals(true, $retVal);
 	}
@@ -122,7 +122,7 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('BACKUP_RUNNING'))->will(
 				$this->returnValue('true'));
 		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'), 'false');
-		$retVal = $this->cut->checkBackupRunning();
+		$retVal = $this->cut->isBackupExecuting();
 		$this->assertEquals(false, $retVal);
 	}
 

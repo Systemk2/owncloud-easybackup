@@ -276,6 +276,24 @@ class ConfigService {
 	}
 
 	/**
+	 * Is a job of this class on the execution queue?
+	 * Only equality of class is relevant, arguments are not considered
+	 *
+	 * @return boolean
+	 */
+	public function isRegistered(IJob $job) {
+		$jobList = \OC::$server->getJobList();
+
+		foreach($jobList->getAll() as $registeredJob) {
+			if(get_class($job) === get_class($registeredJob)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @param string $publicKey
 	 */
 	public function setPublicKey($publicKey) {

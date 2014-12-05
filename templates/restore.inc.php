@@ -1,9 +1,9 @@
 <div class="bold">
-	<?php p($l->t('3 easy steps to recover files from previous snapshots'));?>
+	<?php p($l->t('2 easy steps to recover files from previous snapshots'));?>
 </div>
 <div class="easybackup_explanation">
 	1)
-	<?php p($l->t('Choose the snapshot and the files you want to recover at'));?>
+	<?php p($l->t('Choose the snapshot and the files to recover at'));?>
 	<a href="http://www.trustedspace.de" target="_new">www.trustedspace.de</a>
 </div>
 <div class="easybackup_explanation">
@@ -16,15 +16,10 @@
 	</textarea>
 
 </div>
-<div class="easybackup_explanation">
-	3)
-	<?php p($l->t('Schedule recovery for execution') . ':');?>
-</div>
 <div>
-
 	<button id="easybackup_restore" disabled>
 		<?php
-		p($l->t('Restore files'));
+		p($l->t('Recover files'));
 		?>
 	</button>
 </div>

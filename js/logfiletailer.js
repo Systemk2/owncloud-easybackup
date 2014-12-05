@@ -22,40 +22,69 @@
 (function($) {
 
 	var easyBackup_logfileViewer = {
+		nRepeat : 0,
 		task : null,
+		toggleLogColorTask : null,
 		ajaxRunning : false,
 		getLog : function() {
 			if (easyBackup_logfileViewer.ajaxRunning) {
 				return;
 			}
-			if($('#easyBackup_log').size() == 0) {
+			if ($('#easyBackup_log').size() == 0) {
 				// No matching output div (did we leave the page?)
 				easyBackup_logfileViewer.stopTail();
 				return;
 			}
 			easyBackup_logfileViewer.ajaxRunning = true;
-			$.ajax({
-				url : OC.generateUrl('/apps/easybackup/logfileview'),
-				type : 'GET',
-				success : function(html) {
-					easyBackup_logfileViewer.ajaxRunning = false;
-					logDiv = $('#easyBackup_log');
-					logDiv.html(html);
-				},
-				error : function(error) {
-					easyBackup_logfileViewer.ajaxRunning = false;
-					// Ignore errors silently
-					//OC.dialogs.alert(error, t('easybackup', 'Error'));
-				}
-			});
-		},
+			$
+					.ajax({
+						url : OC.generateUrl('/apps/easybackup/logfileview'),
+						type : 'GET',
+						contentType : 'application/json',
+						success : function(json) {
+							easyBackup_logfileViewer.ajaxRunning = false;
+							logDiv = $('#easyBackup_log');
+							var oldHtml = logDiv.html();
+							logDiv.html(json.data.html);
+							if (oldHtml != t('easybackup', 'Reading data...') && oldHtml != json.data.html) {
+								easyBackup_logfileViewer.nRepeat = 3;
+								easyBackup_logfileViewer.toggleLogColorTask = setInterval(
+										easyBackup_logfileViewer.toggleLogColor,
+										100);
+							}
+							if(json.data.backupExecutingOrWaitingForRun) {
+								$('#easybackup_waitbar_span').addClass('easybackup_waitbar');
+							} else {
+								$('#easybackup_waitbar_span').removeClass('easybackup_waitbar');
+							}
 
+						},
+						error : function(error) {
+							easyBackup_logfileViewer.ajaxRunning = false;
+							// Ignore errors silently
+							// OC.dialogs.alert(error, t('easybackup',
+							// 'Error'));
+						}
+					});
+		},
+		toggleLogColor : function() {
+			if (easyBackup_logfileViewer.nRepeat % 2 == 0) {
+				$(logDiv).removeClass("light_red");
+			} else {
+				$(logDiv).addClass("light_red");
+			}
+			if (easyBackup_logfileViewer.nRepeat == 0) {
+				clearInterval(easyBackup_logfileViewer.toggleLogColorTask);
+			} else {
+				easyBackup_logfileViewer.nRepeat--;
+			}
+		},
 		startTail : function() {
 			if (easyBackup_logfileViewer.task != null) {
 				// Already running
 				return;
 			}
-			if($('#easyBackup_log').size() == 0) {
+			if ($('#easyBackup_log').size() == 0) {
 				// No matching output div (we're not on the right page?)
 				return;
 			}

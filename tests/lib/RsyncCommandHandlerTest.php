@@ -77,7 +77,7 @@ class BackupCommandHandlerTest extends \OCA\EasyBackup\BaseTestCase {
 	}
 
 	public function testPreExecFailure() {
-		$this->backupServiceMock->expects($this->once())->method('checkBackupRunning')->will($this->returnValue(true));
+		$this->backupServiceMock->expects($this->once())->method('isBackupExecuting')->will($this->returnValue(true));
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')
 		->will($this->returnValue('/dev/null'));
 		$retVal = $this->cut->preExec();
@@ -85,7 +85,7 @@ class BackupCommandHandlerTest extends \OCA\EasyBackup\BaseTestCase {
 	}
 
 	public function testPreExecSuccess() {
-		$this->backupServiceMock->expects($this->once())->method('checkBackupRunning')->will($this->returnValue(false));
+		$this->backupServiceMock->expects($this->once())->method('isBackupExecuting')->will($this->returnValue(false));
 		$this->backupServiceMock->expects($this->once())->method('setBackupRunning')->with($this->equalTo(true));
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')
 		->will($this->returnValue('/dev/null'));
