@@ -57,13 +57,13 @@
 							} else {
 								$('#easybackup_waitbar_span').removeClass('easybackup_waitbar');
 							}
+							$('#easybackup_lastbackup').html(json.data.lastBackupHtml);
 
 						},
 						error : function(error) {
 							easyBackup_logfileViewer.ajaxRunning = false;
-							// Ignore errors silently
-							// OC.dialogs.alert(error, t('easybackup',
-							// 'Error'));
+							easyBackup_logfileViewer.stopTail();
+							$('#easyBackup_log').html(t('easybackup', 'Could not read logfile') + " " + error.statusText);
 						}
 					});
 		},
@@ -96,8 +96,6 @@
 		},
 
 		stopTail : function() {
-			$('#easyBackup_logfileViewer_startViewer').prop('disabled', false);
-			$('#easyBackup_logfileViewer_stopViewer').prop('disabled', true);
 			if (easyBackup_logfileViewer.task == null) {
 				return;
 			}

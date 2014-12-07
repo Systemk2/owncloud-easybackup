@@ -106,7 +106,9 @@ class PageController extends BaseController {
 				'subTemplate' => $subTemplate,
 				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
 				'publicKey' => $this->configService->getPublicKey(),
-				'isExecuting' => $this->backupService->isExecutingOrWaitingForRun()
+				'isExecuting' => $this->backupService->isExecutingOrWaitingForRun(),
+				'lastBackupSuccessful' => $this->backupService->isLastBackupSuccessful(),
+				'lastBackupTime' => $this->backupService->getLastBackupTime()
 		);
 
 		return $parameters;

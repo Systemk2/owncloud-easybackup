@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,39 +21,30 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Controller;
 
 use \OCA\EasyBackup\ResponseFactory;
 use \OCA\EasyBackup\Service\ConfigService;
-
 use \OCP\ILogger;
 use \OCP\IRequest;
 use OCA\EasyBackup\Service\BackupService;
 
-
-
 class LogfileviewController extends BaseController {
 
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
 
-
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
 
-
-	public function __construct(
-			$appName,
-			IRequest $request,
-			ILogger $logger,
-			ConfigService $configService,
-			BackupService $backupService,
-			ResponseFactory $responseFactory) {
+	public function __construct($appName, IRequest $request, ILogger $logger, ConfigService $configService,
+			BackupService $backupService, ResponseFactory $responseFactory) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->configService = $configService;
 		$this->backupService = $backupService;
@@ -61,26 +53,26 @@ class LogfileviewController extends BaseController {
 	protected function tailFile() {
 		$file = $this->configService->getLogfileName();
 		$lines = $this->configService->getNumberOfLinesToDisplay();
-		if(!file_exists($file)) {
-			return array();
+		if (! file_exists($file)) {
+			return array ();
 		}
 		$handle = fopen($file, 'r');
-		if($handle == false) {
-			return array();
+		if ($handle == false) {
+			return array ();
 		}
 		$linecounter = $lines;
-		$pos = -2;
+		$pos = - 2;
 		$beginning = false;
-		$text = array();
-		while ($linecounter > 0) {
+		$text = array ();
+		while ( $linecounter > 0 ) {
 			$t = ' ';
-			while ($t != "\n") {
-				if(fseek($handle, $pos, SEEK_END) == -1) {
+			while ( $t != "\n" ) {
+				if (fseek($handle, $pos, SEEK_END) == - 1) {
 					$beginning = true;
 					break;
 				}
 				$t = fgetc($handle);
-				if($t === false) {
+				if ($t === false) {
 					break;
 				}
 				$pos --;
@@ -90,15 +82,15 @@ class LogfileviewController extends BaseController {
 				rewind($handle);
 			}
 			$readLine = fgets($handle);
-			if($readLine === false) {
+			if ($readLine === false) {
 				break;
 			}
-			$text[$lines-$linecounter-1] = $readLine;
+			$text [$lines - $linecounter - 1] = $readLine;
 			if ($beginning) {
 				break;
 			}
 		}
-		fclose ($handle);
+		fclose($handle);
 		return array_reverse($text);
 	}
 
@@ -107,28 +99,35 @@ class LogfileviewController extends BaseController {
 	 */
 	protected function getLogFileContent() {
 		$lines = $this->tailFile();
-		$wrappedLines = array();
+		$wrappedLines = array ();
 		$maxWidth = $this->configService->getDisplayWidth();
 
-		foreach ($lines as $line) {
-			while(strlen($line) > $maxWidth) {
-				$wrappedLines[] = substr($line, 0, $maxWidth) ."\n";
+		foreach ( $lines as $line ) {
+			while ( strlen($line) > $maxWidth ) {
+				$wrappedLines [] = substr($line, 0, $maxWidth) . "\n";
 				$line = substr($line, $maxWidth);
 			}
-			$wrappedLines[] = $line;
+			$wrappedLines [] = $line;
 		}
 		$data = '';
-		foreach (array_slice($wrappedLines, -($this->configService->getNumberOfLinesToDisplay())) as $line) {
+		foreach ( array_slice($wrappedLines, - ($this->configService->getNumberOfLinesToDisplay())) as $line ) {
 			$data .= str_replace("\n", '<br>', htmlentities($line));
 		}
-		//return $this->responseFactory->createPlainTextResponse($data);
-		return array('html' => $data, 'backupExecutingOrWaitingForRun' => $this->backupService->isExecutingOrWaitingForRun());
+		// return $this->responseFactory->createPlainTextResponse($data);
+		return array (
+				'html' => $data,
+				'backupExecutingOrWaitingForRun' => $this->backupService->isExecutingOrWaitingForRun(),
+				'lastBackupHtml' => $this->renderHtml('lastbackup.inc',
+						array (
+								'lastBackupSuccessful' => $this->backupService->isLastBackupSuccessful(),
+								'lastBackupTime' => $this->backupService->getLastBackupTime()
+						))
+		);
 	}
 
 	/**
 	 * @ControllerManaged
 	 * @NoCSRFRequired
-	 *
 	 */
 	protected function getCompleteLogfile() {
 		$file = $this->configService->getLogfileName();

@@ -37,20 +37,9 @@ input.easybackup_input {
 
 #easybackup_upload_key {
 	opacity: 0;
-	position: relative;
-	width: 20px;
+	position: absolute;
+	width: 200px;
 	z-index: 20;
-}
-
-#easybackup_upload_icon {
-	margin: -20px;
-	position: relative;
-	width: 100px;
-	z-index: 10;
-}
-
-#easybackup_fileupload {
-	width: 25px;
 }
 
 #easybackup_schedules {

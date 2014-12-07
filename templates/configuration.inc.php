@@ -47,8 +47,8 @@ use \OCA\EasyBackup\StatusContainer;
 		</div>
 		<form id="easybackup_fileupload_form" method="POST" enctype="multipart/form-data" action="<?php p($_['keyUploadUrl'])?>" target="easybackup_upload_target">
 			<div>
-				<span id="easybackup_fileupload"> <input id="easybackup_upload_key" type="file" name="easybackup_sshKeyFile" /> <a id="easybackup_upload_icon" class="svg icon-upload" href="#">&nbsp;&nbsp;&nbsp;&nbsp;</a>
-				</span> <span class="easybackup_label"> <?php p($l->t('upload private SSH key'))?>
+				<span id="easybackup_fileupload" class="easybackup_label"> <input id="easybackup_upload_key" type="file" name="easybackup_sshKeyFile" /> <a id="easybackup_upload_icon" class="svg icon-upload" href="#">&nbsp;&nbsp;&nbsp;&nbsp;</a>
+				<?php p($l->t('upload private SSH key'))?>
 			</span>
 			</div>
 		</form>

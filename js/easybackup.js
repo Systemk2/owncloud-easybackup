@@ -168,8 +168,8 @@
 			return;
 
 		},
-		putJSONRequest : function(route, data, elementWithSpinner, onSuccess = function(data) {},
-				onError = function() {}) {
+		putJSONRequest : function(route, data, elementWithSpinner, onSuccess,
+				onError) {
 			// mark as loading (temp element)
 			elementWithSpinner.css('background', 'url('
 					+ OC.imagePath('core', 'loading.gif') + ') no-repeat');
@@ -182,20 +182,24 @@
 				success : function(json) {
 					elementWithSpinner.css('background-image', 'none');
 					if (json.status == 'success') {
-						onSuccess(json.data);
+						if (typeof onSuccess !== 'undefined') {
+							onSuccess(json.data);
+						}
 					} else {
 						OC.dialogs.alert(json.message, t('easybackup',
 								'Request failed'));
-						onError();
+						if (typeof onError !== 'undefined') {
+							onError();
+						}
+
 					}
 				},
 				error : function(error) {
 					elementWithSpinner.css('background-image', 'none');
-					var errorMessage = t('easybackup', error.statusText);
+					var errorMessage = error.statusText;
 					try {
-						if (typeof error.responseJSON != 'undefined' && error.responseJSON != null) {
-							// errorObject = $.parseJSON(error.responseText);
-							if (typeof error.responseJSON.message != 'undefined') {
+						if (typeof error.responseJSON !== 'undefined' && error.responseJSON != null) {
+							if (typeof error.responseJSON.message !== 'undefined') {
 								errorMessage += ': ' + error.responseJSON.message;
 							} else {
 								errorMessage += ': ' + error.responseText;
@@ -205,7 +209,9 @@
 						errorMessage += ' (' + e + ')';
 					}
 					OC.dialogs.alert(errorMessage, t('easybackup', 'Error'));
-					onError();
+					if (typeof onError !== 'undefined') {
+						onError();
+					}
 				}
 			});
 		},

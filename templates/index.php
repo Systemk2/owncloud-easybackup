@@ -39,6 +39,9 @@
 			<div id="easybackup_preconditions">
 				<?php print_unescaped($this->inc('preconditions.inc')); ?>
 			</div>
+			<div id="easybackup_lastbackup">
+				<?php print_unescaped($this->inc('lastbackup.inc')); ?>
+			</div>
 			<div>
 				<?php print_unescaped($this->inc('logfile.inc')); ?>
 			</div>

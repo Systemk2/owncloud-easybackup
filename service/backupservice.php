@@ -211,14 +211,24 @@ class BackupService {
 	 */
 	public function finishBackup($success) {
 		$this->configService->setAppValue('BACKUP_RUNNING', 'false');
-		$logfileName = $this->configService->getLogfileName();
+		$this->configService->setAppValue('LAST_BACKUP_SUCCESSFUL', $success ? 'true' : 'false');
 		$date = date('Y-m-d H:i:s e');
+		$this->configService->setAppValue('LAST_BACKUP_TIME', $date);
+		$logfileName = $this->configService->getLogfileName();
 		if ($success) {
 			$message = "[$date] " . $this->trans->t('Backup finished successfully' . "\n");
 		} else {
 			$message = "[$date] " . $this->trans->t('Backup finished with errors' . "\n");
 		}
 		file_put_contents($logfileName, "\n$message", FILE_APPEND);
+	}
+
+	public function isLastBackupSuccessful() {
+		return $this->configService->getAppValue('LAST_BACKUP_SUCCESSFUL') === 'true';
+	}
+
+	public function getLastBackupTime() {
+		return $this->configService->getAppValue('LAST_BACKUP_TIME');
 	}
 
 	/**
@@ -243,6 +253,7 @@ class BackupService {
 	public function setBackupRunning($running) {
 		$this->configService->setAppValue('BACKUP_RUNNING', $running ? 'true' : 'false');
 	}
+
 
 	/**
 	 *
