@@ -22,13 +22,6 @@
 (function($) {
 	var easyBackup = {
 		userNameRegExp : /^[a-z]+[0-9]+$/,
-		toggleStatusDetails : function() {
-			if ($(easybackup_status_details).css('display') == 'none') {
-				$('#easybackup_status_details').show('blind');
-			} else {
-				$('#easybackup_status_details').hide('blind');
-			}
-		},
 		setUserName : function() {
 			var span = $('#easybackup_userNameEdit');
 			var hostName = $('#easybackup_userName');
@@ -163,7 +156,7 @@
 			$('#easybackup_preconditions').html(json.data.preconditionsHtml);
 			$('#easybackup_publickeymanagement').html(json.data.publicKeyHtml);
 			OC.dialogs.info(t('easybackup',
-					'The new private key was successfully set'), t(
+					'The new private key was successfully set, do not forget to configure the corresponding public key at trustedspace.de'), t(
 					'easybackup', 'Upload finished'));
 			return;
 
@@ -258,7 +251,7 @@
 					{}, $('#easyBackup_createKey'), function(data) {
 						$('#easybackup_publickeymanagement').html(data.publicKeyHtml);
 						OC.dialogs.info(t('easybackup',
-						'A new public/private key pair has been created, please copy the public key to your trustedspace.de account'),
+						'A new public/private key pair has been created, do not forget to copy the public key to your trustedspace.de account!'),
 						t('easybackup', 'Success'));
 					});
 		},
@@ -297,9 +290,6 @@
 						easyBackup.setUserName);
 				$('#easybackup_upload_key').on('change',
 						easyBackup.submitKeyFile);
-				$('#easybackup_status').on('click',
-						'#easybackup_toggle_status_details',
-						easyBackup.toggleStatusDetails);
 				$('#easybackup_schedule_check').on('change',
 						easyBackup.activateSchedule);
 				$('#easybackup_starthour').on('change',

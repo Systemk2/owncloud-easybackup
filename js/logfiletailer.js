@@ -22,9 +22,7 @@
 (function($) {
 
 	var easyBackup_logfileViewer = {
-		nRepeat : 0,
 		task : null,
-		toggleLogColorTask : null,
 		ajaxRunning : false,
 		getLog : function() {
 			if (easyBackup_logfileViewer.ajaxRunning) {
@@ -36,48 +34,33 @@
 				return;
 			}
 			easyBackup_logfileViewer.ajaxRunning = true;
-			$
-					.ajax({
-						url : OC.generateUrl('/apps/easybackup/logfileview'),
-						type : 'GET',
-						contentType : 'application/json',
-						success : function(json) {
-							easyBackup_logfileViewer.ajaxRunning = false;
-							logDiv = $('#easyBackup_log');
-							var oldHtml = logDiv.html();
-							logDiv.html(json.data.html);
-							if (oldHtml != t('easybackup', 'Reading data...') && oldHtml != json.data.html) {
-								easyBackup_logfileViewer.nRepeat = 3;
-								easyBackup_logfileViewer.toggleLogColorTask = setInterval(
-										easyBackup_logfileViewer.toggleLogColor,
-										100);
-							}
-							if(json.data.backupExecutingOrWaitingForRun) {
-								$('#easybackup_waitbar_span').addClass('easybackup_waitbar');
-							} else {
-								$('#easybackup_waitbar_span').removeClass('easybackup_waitbar');
-							}
-							$('#easybackup_lastbackup').html(json.data.lastBackupHtml);
+			$.ajax({
+				url : OC.generateUrl('/apps/easybackup/logfileview'),
+				type : 'GET',
+				contentType : 'application/json',
+				success : function(json) {
+					easyBackup_logfileViewer.ajaxRunning = false;
+					logDiv = $('#easyBackup_log');
+					var oldHtml = logDiv.html();
+					logDiv.html(json.data.html);
+					if (json.data.backupExecutingOrWaitingForRun) {
+						$('#easybackup_waitbar_span').addClass(
+								'easybackup_waitbar');
+					} else {
+						$('#easybackup_waitbar_span').removeClass(
+								'easybackup_waitbar');
+					}
+					$('#easybackup_lastbackup').html(json.data.lastBackupHtml);
 
-						},
-						error : function(error) {
-							easyBackup_logfileViewer.ajaxRunning = false;
-							easyBackup_logfileViewer.stopTail();
-							$('#easyBackup_log').html(t('easybackup', 'Could not read logfile') + " " + error.statusText);
-						}
-					});
-		},
-		toggleLogColor : function() {
-			if (easyBackup_logfileViewer.nRepeat % 2 == 0) {
-				$(logDiv).removeClass("light_red");
-			} else {
-				$(logDiv).addClass("light_red");
-			}
-			if (easyBackup_logfileViewer.nRepeat == 0) {
-				clearInterval(easyBackup_logfileViewer.toggleLogColorTask);
-			} else {
-				easyBackup_logfileViewer.nRepeat--;
-			}
+				},
+				error : function(error) {
+					easyBackup_logfileViewer.ajaxRunning = false;
+					easyBackup_logfileViewer.stopTail();
+					$('#easyBackup_log').html(
+							t('easybackup', 'Could not read logfile') + " "
+									+ error.statusText);
+				}
+			});
 		},
 		startTail : function() {
 			if (easyBackup_logfileViewer.task != null) {

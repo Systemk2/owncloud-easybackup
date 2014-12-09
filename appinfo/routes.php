@@ -30,6 +30,10 @@ $application->registerRoutes($this, array(
 				array(	'name' => 'page#configuration',
 						'url' => '/',
 						'verb' => 'GET'),
+				// "/backup" -> PageController::backup()
+				array(	'name' => 'page#backup',
+						'url' => '/backup',
+						'verb' => 'GET'),
 				// "/restore" -> PageController::restore()
 				array(	'name' => 'page#restore',
 						'url' => '/restore',

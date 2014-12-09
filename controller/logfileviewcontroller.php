@@ -91,7 +91,7 @@ class LogfileviewController extends BaseController {
 			}
 		}
 		fclose($handle);
-		return array_reverse($text);
+		return $text;
 	}
 
 	/**
@@ -110,8 +110,16 @@ class LogfileviewController extends BaseController {
 			$wrappedLines [] = $line;
 		}
 		$data = '';
-		foreach ( array_slice($wrappedLines, - ($this->configService->getNumberOfLinesToDisplay())) as $line ) {
-			$data .= str_replace("\n", '<br>', htmlentities($line));
+		$linesToDisplay = array_slice($wrappedLines, 0, $this->configService->getNumberOfLinesToDisplay());
+		$increment = count($linesToDisplay) > 0 ? intval(200 / count($linesToDisplay)) : 0;
+		$colorCode = 0;
+		foreach ($linesToDisplay  as $line ) {
+			$colorCodeHex = dechex($colorCode);
+			if(strlen($colorCodeHex) == 1) {
+				$colorCodeHex = "0" . $colorCodeHex;
+			}
+			$data .= "<font color=\"#$colorCodeHex$colorCodeHex$colorCodeHex\">" . str_replace("\n", '<br>', htmlentities($line)) . '</font>';
+			$colorCode += $increment;
 		}
 		// return $this->responseFactory->createPlainTextResponse($data);
 		return array (

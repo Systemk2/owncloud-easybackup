@@ -23,6 +23,7 @@
 	<div id="app-navigation">
 		<ul class="with-icon">
 			<li class="<?php print_unescaped($_['subTemplate'] == 'configuration.inc' ? 'active' : ''); ?>"><a href="<?php print_unescaped($_['configurationUrl']);?>"><?php p($l->t('Configuration')); ?> </a></li>
+			<li class="<?php print_unescaped($_['subTemplate'] == 'backup.inc' ? 'active' : ''); ?>"><a href="<?php print_unescaped($_['backupUrl']);?>"><?php p($l->t('Backup')); ?> </a></li>
 			<li class="<?php print_unescaped($_['subTemplate'] == 'restore.inc' ? 'active' : ''); ?>"><a href="<?php print_unescaped($_['restoreUrl']);?>"><?php p($l->t('Recovery')); ?> </a></li>
 		</ul>
 	</div>
@@ -37,13 +38,13 @@
 		</div>
 		<div id="easybackup_status">
 			<div id="easybackup_preconditions">
-				<?php print_unescaped($this->inc('preconditions.inc')); ?>
+				<?php if($_['subTemplate'] == 'configuration.inc') print_unescaped($this->inc('preconditions.inc')); ?>
 			</div>
 			<div id="easybackup_lastbackup">
-				<?php print_unescaped($this->inc('lastbackup.inc')); ?>
+				<?php if($_['subTemplate'] != 'configuration.inc') print_unescaped($this->inc('lastbackup.inc')); ?>
 			</div>
 			<div>
-				<?php print_unescaped($this->inc('logfile.inc')); ?>
+				<?php if($_['subTemplate'] != 'configuration.inc') print_unescaped($this->inc('logfile.inc')); ?>
 			</div>
 			<div id="easybackup_credits">
 				Icon design:&nbsp;<a target="_new" href="http://www.fatcow.com/free-icons">www.fatcow.com</a>

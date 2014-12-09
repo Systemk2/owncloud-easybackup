@@ -27,7 +27,7 @@ span {
 	padding-left: 15px;
 }
 
-#easybackup_userNameEdit,#easybackup_fileupload,.easybackup_label {
+#easybackup_userNameEdit, #easybackup_fileupload, .easybackup_label {
 	display: inline-block;
 }
 
@@ -47,14 +47,25 @@ input.easybackup_input {
 }
 
 .easybackup_explanation {
-	background: url("../img/bullet.png") no-repeat scroll left center;
 	font-style: italic;
 	margin-left: -15px;
 	padding: 0 0 10px 18px;
 }
 
+.easybackup_bullet {
+	background: url("../img/bullet.png") no-repeat scroll left center;
+}
+
 .easybackup_explanation A {
 	text-decoration: underline;
+}
+
+#easybackup_goToBackup {
+	background: url("../img/cog_go.png") no-repeat scroll left bottom
+		rgba(0, 0, 0, 0);
+	border: medium none;
+	height: 35px;
+	padding-left: 35px;
 }
 
 #easybackup_status {
@@ -125,13 +136,19 @@ input.easybackup_input {
 }
 
 #easybackup_credits {
-	padding-right: 15px;
-	float: right;
 	font-size: smaller;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	color: GRAY;
 }
+
+#easybackup_credits A {
+	color: GRAY;
+}
+
 #easybackup_publicKeyHint {
 	width: 500px;
-	
 }
 
 #easybackup_publicKeyHint textarea {

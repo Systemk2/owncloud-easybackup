@@ -19,5 +19,5 @@ Currently the app has the following limitations
 - Encrypted file storage is not yet supported
 
 A backup hosting account on www.trustedspace.de is
-required to use this app (1 GB / 2 months free, offers then starting at 3€ / month)
+required to use this app (1 GB / 6 months free, offers then starting at 3€ / month)
 

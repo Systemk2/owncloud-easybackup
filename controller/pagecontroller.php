@@ -85,6 +85,14 @@ class PageController extends BaseController {
 	/**
 	 * @NoCSRFRequired
 	 */
+	public function backup() {
+		$parameters = $this->createParameters('backup.inc');
+		return new TemplateResponse($this->appName, 'index', $parameters);
+	}
+
+	/**
+	 * @NoCSRFRequired
+	 */
 	public function restore() {
 		$parameters = $this->createParameters('restore.inc');
 		return new TemplateResponse($this->appName, 'index', $parameters);
@@ -101,6 +109,7 @@ class PageController extends BaseController {
 				'scheduleTime' => $this->configService->getScheduleTime(),
 				'isScheduled' => $this->configService->isBackupScheduled(),
 				'configurationUrl' => $this->urlGenerator->linkToRoute('easybackup.page.configuration'),
+				'backupUrl' => $this->urlGenerator->linkToRoute('easybackup.page.backup'),
 				'restoreUrl' => $this->urlGenerator->linkToRoute('easybackup.page.restore'),
 				'logfileUrl' => $this->urlGenerator->linkToRoute('easybackup.logfileview.getCompleteLogfile'),
 				'subTemplate' => $subTemplate,

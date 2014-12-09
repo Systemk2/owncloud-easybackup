@@ -179,7 +179,7 @@ class ScheduleService {
 			$currentHour = intval($now->format('H'));
 			// For the very first run or for runs at a fixed day of week or month,
 			// we wait for the defined hour of the day
-			return $currentHour == $firstRunAtHour;
+			return $currentHour >= $firstRunAtHour;
 		} else {
 			// Otherwise we just check if enough time has passed since last run
 			$lastRunDateAndHour = \DateTime::createFromFormat('Y-m-d H|', $lastRun->format('Y-m-d H'));

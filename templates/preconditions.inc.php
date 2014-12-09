@@ -19,37 +19,38 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- if($_['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::ERROR) {
- 	$checkClass = 'easybackup_redcheck';
- } elseif($_['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::WARN) {
- 	$checkClass = 'easybackup_yellowcheck';
- } else {
- 	$checkClass = 'easybackup_greencheck';
- }
+if ($_ ['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::ERROR) {
+	$checkClass = 'easybackup_redcheck';
+} elseif ($_ ['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::WARN) {
+	$checkClass = 'easybackup_yellowcheck';
+} else {
+	$checkClass = 'easybackup_greencheck';
+}
 ?>
 
-<span id="easybackup_toggle_status_details" class="<?php print_unescaped($checkClass); ?>"> <?php
-if($_['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::OK) {
+<span id="easybackup_toggle_status_details">
+<?php
+if ($_ ['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::OK) {
 	p($l->t('All operating conditions were successfully verified'));
-} elseif($_['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::WARN) {
+} elseif ($_ ['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::WARN) {
 	p($l->t('Imperfect operating conditions'));
 } else {
 	p($l->t('Verification of operating conditions failed'));
 }
-?>&nbsp;&nbsp;&nbsp;<span class="button">...</span>
+?>
 </span>
-<div id="easybackup_status_details" class="drop" <?php if($_['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContainer::OK) print_unescaped('style="display: none"'); ?>>
+<div id="easybackup_status_details">
 	<ul>
 		<?php
-		foreach($_['statusContainer']->getAllStatus() as $singleStatus) {
-			if($singleStatus['status'] == \OCA\EasyBackup\StatusContainer::ERROR) {
+		foreach ( $_ ['statusContainer']->getAllStatus() as $singleStatus ) {
+			if ($singleStatus ['status'] == \OCA\EasyBackup\StatusContainer::ERROR) {
 				$checkClass = 'easybackup_redcheck';
-			} elseif($singleStatus['status'] == \OCA\EasyBackup\StatusContainer::WARN) {
+			} elseif ($singleStatus ['status'] == \OCA\EasyBackup\StatusContainer::WARN) {
 				$checkClass = 'easybackup_yellowcheck';
 			} else {
 				$checkClass = 'easybackup_greencheck';
 			}
-			print_unescaped("<li class=\"$checkClass\">" . $singleStatus['localized'] . '</li>');
+			print_unescaped("<li class=\"$checkClass\">" . $singleStatus ['localized'] . '</li>');
 		}
 		?>
 	</ul>
