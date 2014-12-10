@@ -26,9 +26,9 @@
 &nbsp;&nbsp;
 <select id="easybackup_select_<?php print_unescaped($_['id']); if(!$_['selected']) print_unescaped('" style="visibility: hidden'); ?>">
 	<?php
-	foreach($_['options'] as $key => $value) {
+	foreach ( $_ ['options'] as $key => $value ) {
 		print_unescaped("<option value=\"$key\"");
-		if($_['selected'] == $key) {
+		if ($_ ['selected'] == $key) {
 			print_unescaped(' selected="true"');
 		}
 		print_unescaped('>');

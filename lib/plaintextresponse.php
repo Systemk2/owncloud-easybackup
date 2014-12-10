@@ -32,7 +32,7 @@ class PlainTextResponse extends Response {
 
 	/**
 	 * Creates a response that serves unmodified text to the client
-	 * 
+	 *
 	 * @param string $data
 	 *        	the data to be served
 	 */
@@ -43,7 +43,7 @@ class PlainTextResponse extends Response {
 
 	/**
 	 * Returns the plain text content
-	 * 
+	 *
 	 * @return string the file
 	 */
 	public function render() {
