@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,7 +20,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use \OCP\AppFramework\Http\Response;
@@ -28,12 +28,13 @@ use \OCP\AppFramework\Http\Response;
  * Return unformatted text
  */
 class PlainTextResponse extends Response {
-
 	private $data;
 
 	/**
 	 * Creates a response that serves unmodified text to the client
-	 * @param string $data the data to be served
+	 * 
+	 * @param string $data
+	 *        	the data to be served
 	 */
 	public function __construct($data) {
 		$this->data = $data;
@@ -42,10 +43,10 @@ class PlainTextResponse extends Response {
 
 	/**
 	 * Returns the plain text content
+	 * 
 	 * @return string the file
 	 */
 	public function render() {
 		return $this->data;
 	}
-
 }

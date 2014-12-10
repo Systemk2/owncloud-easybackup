@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,18 +20,17 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use OCA\EasyBackup\AppInfo\Application;
 
-class BackupCommandHandler implements  ICommandHandler {
-
+class BackupCommandHandler implements ICommandHandler {
+	
 	/**
+	 *
 	 * @var \OCP\IContainer
 	 */
 	private $container;
-
 
 	public function getCommand() {
 		return $this->getContainer()->query('ConfigService')->getBackupCommand();
@@ -39,16 +39,17 @@ class BackupCommandHandler implements  ICommandHandler {
 	public function preExec() {
 		$logfileName = $this->getContainer()->query('ConfigService')->getLogfileName();
 		$date = date('Y-m-d H:i:s e');
-		file_put_contents($logfileName, "[$date] Starting backup...\n",  FILE_APPEND);
-		if($this->getContainer()->query('BackupService')->isBackupExecuting()) {
-			file_put_contents($logfileName, "\n[$date] Backup already running, skipping backup execution\n",  FILE_APPEND);
+		file_put_contents($logfileName, "[$date] Starting backup...\n", FILE_APPEND);
+		if ($this->getContainer()->query('BackupService')->isBackupExecuting()) {
+			file_put_contents($logfileName, "\n[$date] Backup already running, skipping backup execution\n", FILE_APPEND);
 			return false;
 		}
 		$this->getContainer()->query('BackupService')->setBackupRunning(true);
 		return true;
 	}
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see \OCA\EasyBackup\ICommandHandler::postExec()
 	 */
 	public function postExec($arg) {
@@ -57,7 +58,7 @@ class BackupCommandHandler implements  ICommandHandler {
 	}
 
 	private function getContainer() {
-		if(!$this->container) {
+		if (! $this->container) {
 			$app = new Application();
 			$this->container = $app->getContainer();
 		}

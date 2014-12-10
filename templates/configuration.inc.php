@@ -80,7 +80,7 @@ use \OCA\EasyBackup\StatusContainer;
 		<?php p($l->t('Start backing up your data manually or on regular basis'));?>
 </div>
 <form action="<?php print_unescaped($_['backupUrl']); ?>">
-	<button id="easybackup_goToBackup" type="submit" <?php if($_['statusContainer']->getOverallStatus() != \OCA\EasyBackup\StatusContainer::OK) echo '"disabled"';?>>
+	<button id="easybackup_goToBackup" type="submit" <?php if($_['statusContainer']->getOverallStatus() != \OCA\EasyBackup\StatusContainer::OK) print_unescaped('"disabled"');?>>
 		<?php
 		p($l->t('Backup...'));
 		?>

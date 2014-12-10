@@ -30,7 +30,7 @@ class ShellExecService {
 
 	/**
 	 *
-	 * @param string $command
+	 * @param string $command        	
 	 * @return \OCA\EasyBackup\ShellExecResult
 	 */
 	public function shellExec($command) {

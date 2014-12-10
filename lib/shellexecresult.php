@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,15 +20,12 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 /**
  * Container class for result of shell command execution
- *
  */
 class ShellExecResult {
-
 	private $retVal;
 	private $output;
 

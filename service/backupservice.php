@@ -30,44 +30,44 @@ use \OCP\IL10N;
 
 class BackupService {
 	const MAX_TIME_INTERVAL = 'PT15M'; // 15 Minutes
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\RunOnceJob
 	 */
 	protected $runOnceJob;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\ScheduledBackupJob
 	 */
 	protected $scheduledBackupJob;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\ScheduledRestoreJob
 	 */
 	protected $scheduledRestoreJob;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ShellExecService
 	 */
 	protected $shellExecService;
-
+	
 	/**
 	 *
 	 * @var \OCP\IL10N
 	 */
 	protected $trans;
 
-	public function __construct(RunOnceJob $runOnceJob, ScheduledBackupJob $scheduledBackupJob, ConfigService $configService,
+	public function __construct(RunOnceJob $runOnceJob, ScheduledBackupJob $scheduledBackupJob, ConfigService $configService, 
 			ShellExecService $shellExecService, IL10N $trans) {
 		$this->runOnceJob = $runOnceJob;
 		$this->scheduledBackupJob = $scheduledBackupJob;
@@ -162,7 +162,7 @@ class BackupService {
 		$rsyncOptions = "-rtgov -e '$sshCommand' --include='$dataDirFolder' --include='$dataDirFolder/*/' --include='$dataDirFolder/*/files/***' --exclude=* --numeric-ids --delete --delete-excluded";
 		$rsyncCommand = "rsync $rsyncOptions $dataDir $host:";
 		$command = "$rsyncCommand >> $logfileName 2>&1";
-
+		
 		$this->configService->setBackupCommand($command);
 	}
 
@@ -173,18 +173,17 @@ class BackupService {
 	 */
 	public function executeBackup() {
 		$logfileName = $this->configService->getLogfileName();
-
+		
 		$date = date('Y-m-d H:i:s e');
-		if($this->configService->isRegistered($this->runOnceJob)) {
-			file_put_contents($logfileName, "[$date] " . $this->trans->t('Job already waiting for next CRON execution...') . "\n",
-			FILE_APPEND);
+		if ($this->configService->isRegistered($this->runOnceJob)) {
+			file_put_contents($logfileName, "[$date] " . $this->trans->t('Job already waiting for next CRON execution...') . "\n", 
+					FILE_APPEND);
 			return;
 		}
 		$this->configService->register($this->runOnceJob, '\OCA\EasyBackup\BackupCommandHandler');
-		file_put_contents($logfileName, "[$date] " . $this->trans->t('Executing backup at next CRON execution...') . "\n",
+		file_put_contents($logfileName, "[$date] " . $this->trans->t('Executing backup at next CRON execution...') . "\n", 
 				FILE_APPEND);
 	}
-
 
 	public function scheduleBackupJob() {
 		$logfileName = $this->configService->getLogfileName();
@@ -207,7 +206,7 @@ class BackupService {
 
 	/**
 	 *
-	 * @param boolean $success
+	 * @param boolean $success        	
 	 */
 	public function finishBackup($success) {
 		$this->configService->setAppValue('BACKUP_RUNNING', 'false');
@@ -233,7 +232,7 @@ class BackupService {
 
 	/**
 	 *
-	 * @param boolean $success
+	 * @param boolean $success        	
 	 */
 	public function finishRestore($success) {
 		$logfileName = $this->configService->getLogfileName();
@@ -248,12 +247,11 @@ class BackupService {
 
 	/**
 	 *
-	 * @param boolean $running
+	 * @param boolean $running        	
 	 */
 	public function setBackupRunning($running) {
 		$this->configService->setAppValue('BACKUP_RUNNING', $running ? 'true' : 'false');
 	}
-
 
 	/**
 	 *
@@ -285,27 +283,27 @@ class BackupService {
 	 */
 	public function createStatusInformation() {
 		$statusContainer = new StatusContainer();
-
-		$statusContainer->addStatus('safeMode', $this->checkSafeModeNotEnabled() ? StatusContainer::OK : StatusContainer::ERROR,
+		
+		$statusContainer->addStatus('safeMode', $this->checkSafeModeNotEnabled() ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('safe mode may not be enabled'));
-		$statusContainer->addStatus('rsyncPresent', $this->checkRsyncPresent() ? StatusContainer::OK : StatusContainer::ERROR,
+		$statusContainer->addStatus('rsyncPresent', $this->checkRsyncPresent() ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('rsync must be present in execution path'));
-		$statusContainer->addStatus('rsyncExecutable',
-				$this->checkRsyncExecutable() ? StatusContainer::OK : StatusContainer::ERROR,
+		$statusContainer->addStatus('rsyncExecutable', 
+				$this->checkRsyncExecutable() ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('rsync binary needs to be executable'));
 		// $statusContainer->addStatus('mysqldumpPresent', $this->checkMysqldumpPresent() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('mysqldump binary is present in execution path'));
 		// $statusContainer->addStatus('mysqldumpExecutable', $this->checkMysqldumpExecutable() ? StatusContainer::OK : StatusContainer::WARN, $this->trans->t('mysqldump binary may be executed'));
-		$statusContainer->addStatus('osIsLinux', php_uname('s') == 'Linux' ? StatusContainer::OK : StatusContainer::ERROR,
+		$statusContainer->addStatus('osIsLinux', php_uname('s') == 'Linux' ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('operating system must be Linux'));
-		$statusContainer->addStatus('cronAvailable',
-				$this->configService->isCronEnabled() ? StatusContainer::OK : StatusContainer::WARN,
+		$statusContainer->addStatus('cronAvailable', 
+				$this->configService->isCronEnabled() ? StatusContainer::OK : StatusContainer::WARN, 
 				$this->trans->t('scheduled tasks should be executed via CRON'));
-		$statusContainer->addStatus('privateKeyPresent',
-				file_exists($this->configService->getPrivateKeyFilename()) ? StatusContainer::OK : StatusContainer::ERROR,
+		$statusContainer->addStatus('privateKeyPresent', 
+				file_exists($this->configService->getPrivateKeyFilename()) ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('private key for backup authentication'));
-		$statusContainer->addStatus('hostNameValid', $this->isHostUserNameValid() ? StatusContainer::OK : StatusContainer::ERROR,
+		$statusContainer->addStatus('hostNameValid', $this->isHostUserNameValid() ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('host user name validation'));
-
+		
 		return $statusContainer;
 	}
 
@@ -326,34 +324,35 @@ class BackupService {
 		$restoreTargetFolder = $this->configService->getDataDir();
 		$sshCommand = "ssh -q -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
 		$rsyncOptions = "-rtgov -e '$sshCommand' --numeric-ids --omit-dir-times";
-
+		
 		foreach ( $c ['include'] as $include ) {
 			$rsyncOptions .= " --include='$include'";
 		}
-
+		
 		foreach ( $c ['exclude'] as $exclude ) {
 			$rsyncOptions .= " --exclude='$exclude'";
 		}
 		$rsyncCommand = "rsync $rsyncOptions $restoreHostName:" . $c ['restorebase'] . "  $dataDir ";
 		$command = "$rsyncCommand >> $logfileName 2>&1";
-
+		
 		$this->configService->setRestoreCommand($command);
-
+		
 		$this->configService->register($this->runOnceJob, '\OCA\EasyBackup\RestoreCommandHandler');
-
+		
 		$date = date('Y-m-d H:i:s e');
-		file_put_contents($logfileName, "[$date] " . $this->trans->t('Restore job will be executed with next CRON') . "\n",
+		file_put_contents($logfileName, "[$date] " . $this->trans->t('Restore job will be executed with next CRON') . "\n", 
 				FILE_APPEND);
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function isExecutingOrWaitingForRun() {
-		if($this->isBackupExecuting()) {
+		if ($this->isBackupExecuting()) {
 			return true;
 		}
-		if($this->configService->isRegistered($this->runOnceJob)) {
+		if ($this->configService->isRegistered($this->runOnceJob)) {
 			return true;
 		}
 		return false;

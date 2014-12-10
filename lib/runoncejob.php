@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,32 +20,32 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
-
 
 use \OCA\EasyBackup\AppInfo\Application;
 
 class RunOnceJob extends \OC\BackgroundJob\QueuedJob {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\IRunnable
 	 */
 	private $runnable;
 
 	/**
+	 *
 	 * @return \OCA\EasyBackup\IRunnable
 	 */
 	private function getRunnable() {
-		if(!$this->runnable) {
+		if (! $this->runnable) {
 			$app = new Application();
 			$this->runnable = $app->getContainer()->query('ShellExecRunnable');
 		}
 		return $this->runnable;
 	}
-
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see OC\BackgroundJob.Job::run()
 	 */
 	public function run($commandHandlerString) {

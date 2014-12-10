@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,7 +21,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use \OCA\EasyBackup\AppInfo\Application;
@@ -28,37 +28,40 @@ use \OCA\EasyBackup\AppInfo\Application;
 require_once (__DIR__ . '/../basetestcase.php');
 
 class BackupCommandHandlerTest extends \OCA\EasyBackup\BaseTestCase {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\BackupCommandHandler
 	 */
 	private $cut;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	private $backupServiceMock;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	private $configServiceMock;
 
 	protected function setUp() {
 		parent::setUp();
-
-		$this->backupServiceMock = $backupServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\BackupService')
-		->disableOriginalConstructor()->getMock();
-		$this->container->registerService('BackupService', function($c) use ($backupServiceMock) {
-			return $backupServiceMock;
-		});
-
-		$this->configServiceMock = $configServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ConfigService')
-		->disableOriginalConstructor()->getMock();
-		$this->container->registerService('ConfigService', function($c) use ($configServiceMock) {
-			return $configServiceMock;
-		});
-
+		
+		$this->backupServiceMock = $backupServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\BackupService')->disableOriginalConstructor()->getMock();
+		$this->container->registerService('BackupService', 
+				function ($c) use($backupServiceMock) {
+					return $backupServiceMock;
+				});
+		
+		$this->configServiceMock = $configServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ConfigService')->disableOriginalConstructor()->getMock();
+		$this->container->registerService('ConfigService', 
+				function ($c) use($configServiceMock) {
+					return $configServiceMock;
+				});
+		
 		$this->cut = new BackupCommandHandler();
 		$reflection = new \ReflectionObject($this->cut);
 		$container = $reflection->getProperty('container');
@@ -78,8 +81,7 @@ class BackupCommandHandlerTest extends \OCA\EasyBackup\BaseTestCase {
 
 	public function testPreExecFailure() {
 		$this->backupServiceMock->expects($this->once())->method('isBackupExecuting')->will($this->returnValue(true));
-		$this->configServiceMock->expects($this->once())->method('getLogfileName')
-		->will($this->returnValue('/dev/null'));
+		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue('/dev/null'));
 		$retVal = $this->cut->preExec();
 		$this->assertFalse($retVal);
 	}
@@ -87,10 +89,8 @@ class BackupCommandHandlerTest extends \OCA\EasyBackup\BaseTestCase {
 	public function testPreExecSuccess() {
 		$this->backupServiceMock->expects($this->once())->method('isBackupExecuting')->will($this->returnValue(false));
 		$this->backupServiceMock->expects($this->once())->method('setBackupRunning')->with($this->equalTo(true));
-		$this->configServiceMock->expects($this->once())->method('getLogfileName')
-		->will($this->returnValue('/dev/null'));
+		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue('/dev/null'));
 		$retVal = $this->cut->preExec();
 		$this->assertTrue($retVal);
 	}
-
 }

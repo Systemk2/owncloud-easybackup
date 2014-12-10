@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,17 +20,12 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Controller;
 
 use OCA\EasyBackup\EasyBackupException;
-
 use OCP\AppFramework\Http;
-
 use OCA\EasyBackup\PlainTextResponse;
-
 use \OCP\AppFramework\Http\JSONResponse;
-
 use \OCA\EasyBackup\AppInfo\Application;
 
 require_once (__DIR__ . '/../basetestcase.php');
@@ -40,7 +36,6 @@ class BaseControllerInstance extends \OCA\EasyBackup\Controller\BaseController {
 	 * @ControllerManaged
 	 */
 	protected function withAnnotationReturnsNothing() {
-
 	}
 
 	/**
@@ -80,22 +75,20 @@ class BaseControllerInstance extends \OCA\EasyBackup\Controller\BaseController {
 
 	protected function withoutAnnotationReturnsResponse() {
 		return new PlainTextResponse('Text5');
-
 	}
 
 	protected function withoutAnnotationThrowsException() {
 		throw new \BadFunctionCallException('Text3');
 	}
-
 }
 
-class BaseControllerTest extends \OCA\EasyBackup\BaseTestCase  {
-
+class BaseControllerTest extends \OCA\EasyBackup\BaseTestCase {
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Controller\BaseControllerInstance
 	 */
 	private $cut;
-
 
 	protected function setUp() {
 		parent::setUp();
@@ -103,37 +96,33 @@ class BaseControllerTest extends \OCA\EasyBackup\BaseTestCase  {
 	}
 
 	public function testWithAnnotationReturnsNothing() {
-		$this->responseFactoryMock->expects($this->once())->method('createJSONSuccessResponse')
-		->with($this->equalTo(null));
+		$this->responseFactoryMock->expects($this->once())->method('createJSONSuccessResponse')->with($this->equalTo(null));
 		$this->cut->withAnnotationReturnsNothing();
 	}
 
-
 	public function testWithAnnotationReturnsText() {
-		$this->responseFactoryMock->expects($this->once())->method('createJSONSuccessResponse')
-		->with($this->equalTo('Text1'))->will($this->returnValue('JSONSuccess'));
+		$this->responseFactoryMock->expects($this->once())->method('createJSONSuccessResponse')->with($this->equalTo('Text1'))->will(
+				$this->returnValue('JSONSuccess'));
 		$retVal = $this->cut->withAnnotationReturnsText();
 		$this->assertEquals('JSONSuccess', $retVal);
 	}
 
-
 	public function testWithAnnotationReturnsResponse() {
 		$retVal = $this->cut->withAnnotationReturnsResponse();
- 		$expected = new PlainTextResponse('Text2');
- 		$this->assertEquals($expected, $retVal);
+		$expected = new PlainTextResponse('Text2');
+		$this->assertEquals($expected, $retVal);
 	}
 
-
 	public function testWithAnnotationThrowsException() {
-		$this->responseFactoryMock->expects($this->once())->method('createJSONInternalServerErrorResponse')
-		->with($this->equalTo('Text3'))->will($this->returnValue('JSONError'));
+		$this->responseFactoryMock->expects($this->once())->method('createJSONInternalServerErrorResponse')->with(
+				$this->equalTo('Text3'))->will($this->returnValue('JSONError'));
 		$retVal = $this->cut->withAnnotationThrowsException();
 		$this->assertEquals('JSONError', $retVal);
 	}
 
 	public function testwithAnnotationThrowsEasyBackupException() {
-		$this->responseFactoryMock->expects($this->once())->method('createJSONBadRequestResponse')
-		->with($this->equalTo('Easy'))->will($this->returnValue('JSONError'));
+		$this->responseFactoryMock->expects($this->once())->method('createJSONBadRequestResponse')->with($this->equalTo('Easy'))->will(
+				$this->returnValue('JSONError'));
 		$retVal = $this->cut->withAnnotationThrowsEasyBackupException();
 		$this->assertEquals('JSONError', $retVal);
 	}
@@ -165,5 +154,4 @@ class BaseControllerTest extends \OCA\EasyBackup\BaseTestCase  {
 		$this->setExpectedException('BadMethodCallException');
 		$retVal = $this->cut->unknownMethod();
 	}
-
 }

@@ -22,50 +22,45 @@
  */
 namespace OCA\EasyBackup\Controller;
 
-
 use \OCA\EasyBackup\ResponseFactory;
 use \OCA\EasyBackup\Service\BackupService;
 use \OCA\EasyBackup\Service\ConfigService;
 use \OCA\EasyBackup\Service\ScheduleService;
 use \OCA\EasyBackup\StatusContainer;
-
 use \OCP\AppFramework\Http\TemplateResponse;
 use \OCP\IL10N;
 use \OCP\ILogger;
 use \OCP\IRequest;
 use \OCP\IURLGenerator;
 
-
 class PageController extends BaseController {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
-
+	
 	/**
+	 *
 	 * @var \OCP\IURLGenerator
 	 */
 	protected $urlGenerator;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ScheduleService
 	 */
 	private $scheduleService;
 
-	public function __construct(
-			$appName,
-			IRequest $request,
-			ILogger $logger,
-			BackupService $backupService,
-			ConfigService $configService,
-			ScheduleService $scheduleService,
-			IURLGenerator $urlGenerator,
+	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService, 
+			ConfigService $configService, ScheduleService $scheduleService, IURLGenerator $urlGenerator, 
 			ResponseFactory $responseFactory) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->backupService = $backupService;
@@ -100,8 +95,8 @@ class PageController extends BaseController {
 
 	private function createParameters($subTemplate) {
 		$statusContainer = $this->backupService->createStatusInformation();
-
-		$parameters = array(
+		
+		$parameters = array (
 				'statusContainer' => $statusContainer,
 				'userName' => $this->configService->getHostUserName(),
 				'keyUploadUrl' => $this->urlGenerator->linkToRoute('easybackup.config.uploadSshKey'),
@@ -117,10 +112,9 @@ class PageController extends BaseController {
 				'publicKey' => $this->configService->getPublicKey(),
 				'isExecuting' => $this->backupService->isExecutingOrWaitingForRun(),
 				'lastBackupSuccessful' => $this->backupService->isLastBackupSuccessful(),
-				'lastBackupTime' => $this->backupService->getLastBackupTime()
+				'lastBackupTime' => $this->backupService->getLastBackupTime() 
 		);
-
+		
 		return $parameters;
 	}
-
 }

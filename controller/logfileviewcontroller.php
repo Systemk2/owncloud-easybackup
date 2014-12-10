@@ -30,20 +30,20 @@ use \OCP\IRequest;
 use OCA\EasyBackup\Service\BackupService;
 
 class LogfileviewController extends BaseController {
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
 
-	public function __construct($appName, IRequest $request, ILogger $logger, ConfigService $configService,
+	public function __construct($appName, IRequest $request, ILogger $logger, ConfigService $configService, 
 			BackupService $backupService, ResponseFactory $responseFactory) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->configService = $configService;
@@ -85,7 +85,7 @@ class LogfileviewController extends BaseController {
 			if ($readLine === false) {
 				break;
 			}
-			$text [$lines - $linecounter - 1] = $readLine;
+			$text [$lines - $linecounter - 1] = trim($readLine, "\n");
 			if ($beginning) {
 				break;
 			}
@@ -101,35 +101,35 @@ class LogfileviewController extends BaseController {
 		$lines = $this->tailFile();
 		$wrappedLines = array ();
 		$maxWidth = $this->configService->getDisplayWidth();
-
+		
 		foreach ( $lines as $line ) {
 			while ( strlen($line) > $maxWidth ) {
 				$wrappedLines [] = substr($line, 0, $maxWidth) . "\n";
 				$line = substr($line, $maxWidth);
 			}
-			$wrappedLines [] = $line;
+			$wrappedLines [] = $line . "\n";
 		}
 		$data = '';
 		$linesToDisplay = array_slice($wrappedLines, 0, $this->configService->getNumberOfLinesToDisplay());
 		$increment = count($linesToDisplay) > 0 ? intval(200 / count($linesToDisplay)) : 0;
 		$colorCode = 0;
-		foreach ($linesToDisplay  as $line ) {
+		foreach ( $linesToDisplay as $line ) {
 			$colorCodeHex = dechex($colorCode);
-			if(strlen($colorCodeHex) == 1) {
+			if (strlen($colorCodeHex) == 1) {
 				$colorCodeHex = "0" . $colorCodeHex;
 			}
-			$data .= "<font color=\"#$colorCodeHex$colorCodeHex$colorCodeHex\">" . str_replace("\n", '<br>', htmlentities($line)) . '</font>';
+			$data .= "<font color=\"#$colorCodeHex$colorCodeHex$colorCodeHex\">" . str_replace("\n", '<br>', htmlentities($line)) .
+					 '</font>';
 			$colorCode += $increment;
 		}
-		// return $this->responseFactory->createPlainTextResponse($data);
 		return array (
 				'html' => $data,
 				'backupExecutingOrWaitingForRun' => $this->backupService->isExecutingOrWaitingForRun(),
-				'lastBackupHtml' => $this->renderHtml('lastbackup.inc',
+				'lastBackupHtml' => $this->renderHtml('lastbackup.inc', 
 						array (
 								'lastBackupSuccessful' => $this->backupService->isLastBackupSuccessful(),
-								'lastBackupTime' => $this->backupService->getLastBackupTime()
-						))
+								'lastBackupTime' => $this->backupService->getLastBackupTime() 
+						)) 
 		);
 	}
 

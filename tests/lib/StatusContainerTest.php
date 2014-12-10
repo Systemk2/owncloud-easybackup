@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,24 +21,21 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Controller;
 
 use OCA\EasyBackup\StatusContainer;
-
 use OCA\EasyBackup\BackupCompletedCallbackHandler;
-
 use \OCA\EasyBackup\AppInfo\Application;
 
 require_once (__DIR__ . '/../basetestcase.php');
 
 class StatusContainerTest extends \PHPUnit_Framework_TestCase {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\StatusContainer
 	 */
 	private $cut;
-
 
 	protected function setUp() {
 		$this->cut = new StatusContainer();
@@ -56,7 +54,7 @@ class StatusContainerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetStatusException() {
-		$this-> setExpectedException('\OCA\EasyBackup\EasyBackupException');
+		$this->setExpectedException('\OCA\EasyBackup\EasyBackupException');
 		$this->cut->getStatus('test');
 	}
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,9 +20,7 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
-
 
 use OCP\AppFramework\Http;
 use \OCP\AppFramework\Http\JSONResponse;
@@ -31,31 +30,44 @@ use \OCP\AppFramework\Http\TemplateResponse;
 class ResponseFactory {
 
 	/**
-	 * @param multitype $message
+	 *
+	 * @param multitype $message        	
 	 * @return \OCP\AppFramework\Http\JSONResponse
 	 */
 	public function createJSONSuccessResponse($result) {
-		return new JSONResponse(array('data' => $result, 'status' => 'success'));
+		return new JSONResponse(array (
+				'data' => $result,
+				'status' => 'success' 
+		));
 	}
 
 	/**
-	 * @param multitype $message
+	 *
+	 * @param multitype $message        	
 	 * @return \OCP\AppFramework\Http\JSONResponse
 	 */
 	public function createJSONBadRequestResponse($message) {
-		return new JSONResponse(array('message' => $message, 'status' => 'error'), Http::STATUS_BAD_REQUEST);
+		return new JSONResponse(array (
+				'message' => $message,
+				'status' => 'error' 
+		), Http::STATUS_BAD_REQUEST);
 	}
 
 	/**
-	 * @param multitype $message
+	 *
+	 * @param multitype $message        	
 	 * @return \OCP\AppFramework\Http\JSONResponse
 	 */
 	public function createJSONInternalServerErrorResponse($message) {
-		return new JSONResponse(array('message' => $message, 'status' => 'error'), Http::STATUS_INTERNAL_SERVER_ERROR);
+		return new JSONResponse(array (
+				'message' => $message,
+				'status' => 'error' 
+		), Http::STATUS_INTERNAL_SERVER_ERROR);
 	}
 
 	/**
-	 * @param string $data
+	 *
+	 * @param string $data        	
 	 * @return PlainTextResponse
 	 */
 	public function createPlainTextResponse($data) {
@@ -63,9 +75,10 @@ class ResponseFactory {
 	}
 
 	/**
-	 * @param string $appName
-	 * @param string $template
-	 * @param array::unknown $params
+	 *
+	 * @param string $appName        	
+	 * @param string $template        	
+	 * @param array::unknown $params        	
 	 * @return \OCP\AppFramework\Http\TemplateResponse;
 	 */
 	public function createTemplateResponse($appName, $template, $params) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,37 +20,39 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use OCA\EasyBackup\AppInfo\Application;
 
-class RestoreCommandHandler implements  ICommandHandler {
-
+class RestoreCommandHandler implements ICommandHandler {
+	
 	/**
+	 *
 	 * @var \OCP\IContainer
 	 */
 	private $container;
-
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see \OCA\EasyBackup\ICommandHandler::getCommand()
 	 */
 	public function getCommand() {
 		return $this->getContainer()->query('ConfigService')->getRestoreCommand();
 	}
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see \OCA\EasyBackup\ICommandHandler::preExec()
 	 */
 	public function preExec() {
 		$logfileName = $this->getContainer()->query('ConfigService')->getLogfileName();
 		$date = date('Y-m-d H:i:s e');
-		file_put_contents($logfileName, "[$date] Starting restore...\n",  FILE_APPEND);
+		file_put_contents($logfileName, "[$date] Starting restore...\n", FILE_APPEND);
 		return true;
 	}
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see \OCA\EasyBackup\ICommandHandler::postExec()
 	 */
 	public function postExec($arg) {
@@ -58,7 +61,7 @@ class RestoreCommandHandler implements  ICommandHandler {
 	}
 
 	private function getContainer() {
-		if(!$this->container) {
+		if (! $this->container) {
 			$app = new Application();
 			$this->container = $app->getContainer();
 		}

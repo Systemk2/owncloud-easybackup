@@ -27,25 +27,24 @@ use \OCA\EasyBackup\ResponseFactory;
 use \OCA\EasyBackup\Service\BackupService;
 use \OCA\EasyBackup\Service\ConfigService;
 use \OCA\EasyBackup\StatusContainer;
-
 use \OCP\ILogger;
 use \OCP\IRequest;
 
 class ConfigController extends BaseController {
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
 
-	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService,
+	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService, 
 			ConfigService $configService, ResponseFactory $responseFactory) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->backupService = $backupService;
@@ -60,28 +59,28 @@ class ConfigController extends BaseController {
 		$this->configService->setPublicKey($publicKey);
 		return array (
 				'preconditionsHtml' => $this->renderPreconditionsHtml(),
-				'publicKeyHtml' => $this->renderPublicKeyHtml()
+				'publicKeyHtml' => $this->renderPublicKeyHtml() 
 		);
 	}
 
 	/**
 	 * @ControllerManaged
 	 *
-	 * @param string $oldUserName
-	 * @param string $newUserName
+	 * @param string $oldUserName        	
+	 * @param string $newUserName        	
 	 */
 	protected function updateHostUserName($oldUserName, $newUserName) {
 		$this->configService->setHostUserName(trim($newUserName));
 		if (! $this->backupService->isHostUserNameValid()) {
 			throw new \OCA\EasyBackup\EasyBackupException('Hostname is not valid');
 		}
-
+		
 		$this->backupService->updateBackupCommand();
-
+		
 		$preconditionsHtml = $this->renderPreconditionsHtml();
 		return (array (
 				'newUserName' => trim($newUserName),
-				'preconditionsHtml' => $preconditionsHtml
+				'preconditionsHtml' => $preconditionsHtml 
 		));
 	}
 
@@ -112,14 +111,14 @@ class ConfigController extends BaseController {
 		$this->configService->setPublicKey($publicKey);
 		return array (
 				'preconditionsHtml' => $this->renderPreconditionsHtml(),
-				'publicKeyHtml' => $this->renderPublicKeyHtml()
+				'publicKeyHtml' => $this->renderPublicKeyHtml() 
 		);
 	}
 
 	/**
 	 * @ControllerManaged
 	 *
-	 * @param string $schedule
+	 * @param string $schedule        	
 	 */
 	protected function setBackupSchedule($schedule) {
 		$this->configService->setBackupSchedule($schedule);
@@ -128,7 +127,7 @@ class ConfigController extends BaseController {
 	/**
 	 * @ControllerManaged
 	 *
-	 * @param int $scheduleTime
+	 * @param int $scheduleTime        	
 	 */
 	protected function setScheduleTime($scheduleTime) {
 		$this->configService->setScheduleTime($scheduleTime);
@@ -137,7 +136,7 @@ class ConfigController extends BaseController {
 	private function renderPreconditionsHtml() {
 		$statusContainer = $this->backupService->createStatusInformation();
 		$parameters = array (
-				'statusContainer' => $statusContainer
+				'statusContainer' => $statusContainer 
 		);
 		return $this->renderHtml('preconditions.inc', $parameters);
 	}
@@ -146,7 +145,7 @@ class ConfigController extends BaseController {
 		$statusContainer = $this->backupService->createStatusInformation();
 		$parameters = array (
 				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
-				'publicKey' => $this->configService->getPublicKey()
+				'publicKey' => $this->configService->getPublicKey() 
 		);
 		return $this->renderHtml('publickey.inc', $parameters);
 	}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,7 +20,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 interface IRunnable {
@@ -27,9 +27,9 @@ interface IRunnable {
 	/**
 	 * Run a job (do the actual processing)
 	 *
-	 * @param string $commandHandlerString representing a \OCA\EasyBackup\ICommandHandler
+	 * @param string $commandHandlerString
+	 *        	representing a \OCA\EasyBackup\ICommandHandler
 	 * @return int the result of the shell command execution
 	 */
 	public function run($commandHandlerString);
-
 }

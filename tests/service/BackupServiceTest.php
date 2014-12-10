@@ -29,25 +29,25 @@ use OCA\EasyBackup\ShellExecResult;
 require_once (__DIR__ . '/../basetestcase.php');
 
 class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	private $cut;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	private $configServiceMock;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\RunOnceJob
 	 */
 	private $runOnceJobMock;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ShellExecService
@@ -56,19 +56,19 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 
 	protected function setUp() {
 		parent::setUp();
-
+		
 		$this->configServiceMock = $configServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ConfigService')->disableOriginalConstructor()->getMock();
-		$this->container->registerService('ConfigService',
+		$this->container->registerService('ConfigService', 
 				function ($c) use($configServiceMock) {
 					return $configServiceMock;
 				});
-
+		
 		$this->shellExecServiceMock = $shellExecServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ShellExecService')->getMock();
-		$this->container->registerService('ShellExecService',
+		$this->container->registerService('ShellExecService', 
 				function ($c) use($shellExecServiceMock) {
 					return $shellExecServiceMock;
 				});
-
+		
 		$this->cut = $this->container->query('BackupService');
 	}
 
@@ -129,16 +129,26 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 	public function testFinishBackupSuccess() {
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue('/dev/null'));
 		$this->translationMock->expects($this->once())->method('t')->with($this->stringContains('success'));
-		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'),
+		$this->configServiceMock->expects($this->exactly(3))->method('setAppValue');
+		$this->configServiceMock->expects($this->at(0))->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'), 
 				$this->equalTo('false'));
+		$this->configServiceMock->expects($this->at(1))->method('setAppValue')->with($this->equalTo('LAST_BACKUP_SUCCESSFUL'), 
+				$this->equalTo('true'));
+		$this->configServiceMock->expects($this->at(2))->method('setAppValue')->with($this->equalTo('LAST_BACKUP_TIME'), 
+				$this->anything());
 		$this->cut->finishBackup(true);
 	}
 
 	public function testFinishBackupFailure() {
 		$this->configServiceMock->expects($this->once())->method('getLogfileName')->will($this->returnValue('/dev/null'));
 		$this->translationMock->expects($this->once())->method('t')->with($this->stringContains('error'));
-		$this->configServiceMock->expects($this->once())->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'),
+		$this->configServiceMock->expects($this->exactly(3))->method('setAppValue');
+		$this->configServiceMock->expects($this->at(0))->method('setAppValue')->with($this->equalTo('BACKUP_RUNNING'), 
 				$this->equalTo('false'));
+		$this->configServiceMock->expects($this->at(1))->method('setAppValue')->with($this->equalTo('LAST_BACKUP_SUCCESSFUL'), 
+				$this->equalTo('false'));
+		$this->configServiceMock->expects($this->at(2))->method('setAppValue')->with($this->equalTo('LAST_BACKUP_TIME'), 
+				$this->anything());
 		$this->cut->finishBackup(false);
 	}
 
@@ -182,15 +192,13 @@ class BackupServiceTest extends \OCA\EasyBackup\BaseTestCase {
 		$keyFileName = __DIR__ . '/../resource/private_key.txt';
 		$this->shellExecServiceMock->expects($this->at(0))->method('shellExec')->with($this->equalTo('which ssh-keygen'))->will(
 				$this->returnValue(new ShellExecResult(0, array ())));
-		$this->configServiceMock->expects($this->once())->method('getPrivateKeyFilename')->will(
-				$this->returnValue($keyFileName));
-		$this->shellExecServiceMock->expects($this->at(1))->method('shellExec')
-		->with($this->equalTo("ssh-keygen -P '' -q -y -f '$keyFileName'"))
-		->will(
+		$this->configServiceMock->expects($this->once())->method('getPrivateKeyFilename')->will($this->returnValue($keyFileName));
+		$this->shellExecServiceMock->expects($this->at(1))->method('shellExec')->with(
+				$this->equalTo("ssh-keygen -P '' -q -y -f '$keyFileName'"))->will(
 				$this->returnValue(new ShellExecResult(0, array (
-						'ssh-rsa AAAAB'
+						'ssh-rsa AAAAB' 
 				))));
 		$publicKey = $this->cut->getPublicSshKeyFromPrivateKey();
- 		$this->assertEquals('ssh-rsa AAAAB', $publicKey);
+		$this->assertEquals('ssh-rsa AAAAB', $publicKey);
 	}
 }

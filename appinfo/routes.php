@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,64 +20,103 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\AppInfo;
 
 $application = new Application();
 
-$application->registerRoutes($this, array(
-		'routes' => array(
-				// "/" -> PageController::configuration()
-				array(	'name' => 'page#configuration',
-						'url' => '/',
-						'verb' => 'GET'),
-				// "/backup" -> PageController::backup()
-				array(	'name' => 'page#backup',
-						'url' => '/backup',
-						'verb' => 'GET'),
-				// "/restore" -> PageController::restore()
-				array(	'name' => 'page#restore',
-						'url' => '/restore',
-						'verb' => 'GET'),
-				// /createsshkey -> ConfigController::createSshKey()
-				array(	'name' => 'config#createSshKey',
-						'url' => '/createsshkey',
-						'verb' => 'PUT'),
-				// /username -> ConfigController::updateHostUserName(string $oldUserName, string $newUserName)
-				array(	'name' => 'config#updateHostUserName',
-						'url' => '/username',
-						'verb' => 'PUT'),
-				// /uploadkey -> ConfigController::uploadSshKey()
-				array(	'name' => 'config#uploadSshKey',
-						'url' => '/uploadkey',
-						'verb' => 'POST'),
-				// /logfileview => LogfileviewController#getLogFileContent()
-				array(	'name' => 'logfileview#getLogFileContent',
-						'url' => '/logfileview',
-						'verb' => 'GET'),
-				// /logfile => LogfileviewController#getCompleteLogfile()
-				array(	'name' => 'logfileview#getCompleteLogfile',
-						'url' => '/logfile',
-						'verb' => 'GET'),
-				// /schedulebackup => BackupController#scheduleBackup()
-				array(	'name' => 'backup#scheduleBackup',
-						'url' => '/schedulebackup',
-						'verb' => 'PUT'),
-				// /restoreaction => BackupController#restoreAction(string $restoreConfig)
-				array(	'name' => 'backup#restoreAction',
-						'url' => '/restoreaction',
-						'verb' => 'PUT'),
-				// /setBackupSchedule -> ConfigController::setBackupSchedule(string $schedule)
-				array(	'name' => 'config#setBackupSchedule',
-						'url' => '/setBackupSchedule',
-						'verb' => 'PUT'),
-				// /setScheduleTime -> ConfigController::setScheduleTime(int $scheduleTime)
-				array(	'name' => 'config#setScheduleTime',
-						'url' => '/setScheduleTime',
-						'verb' => 'PUT'),
-				// /setScheduleTime -> BackupController::setBackupScheduled(boolean $scheduled)
-				array(	'name' => 'backup#setBackupScheduled',
-						'url' => '/setBackupScheduled',
-						'verb' => 'PUT'),
-		)
-));
+$application->registerRoutes($this, 
+		array (
+				'routes' => array (
+						
+						// "/" -> PageController::configuration()
+						array (
+								'name' => 'page#configuration',
+								'url' => '/',
+								'verb' => 'GET' 
+						),
+						
+						// "/backup" -> PageController::backup()
+						array (
+								'name' => 'page#backup',
+								'url' => '/backup',
+								'verb' => 'GET' 
+						),
+						
+						// "/restore" -> PageController::restore()
+						array (
+								'name' => 'page#restore',
+								'url' => '/restore',
+								'verb' => 'GET' 
+						),
+						
+						// /createsshkey -> ConfigController::createSshKey()
+						array (
+								'name' => 'config#createSshKey',
+								'url' => '/createsshkey',
+								'verb' => 'PUT' 
+						),
+						
+						// /username -> ConfigController::updateHostUserName(string $oldUserName, string $newUserName)
+						array (
+								'name' => 'config#updateHostUserName',
+								'url' => '/username',
+								'verb' => 'PUT' 
+						),
+						
+						// /uploadkey -> ConfigController::uploadSshKey()
+						array (
+								'name' => 'config#uploadSshKey',
+								'url' => '/uploadkey',
+								'verb' => 'POST' 
+						),
+						
+						// /logfileview => LogfileviewController#getLogFileContent()
+						array (
+								'name' => 'logfileview#getLogFileContent',
+								'url' => '/logfileview',
+								'verb' => 'GET' 
+						),
+						
+						// /logfile => LogfileviewController#getCompleteLogfile()
+						array (
+								'name' => 'logfileview#getCompleteLogfile',
+								'url' => '/logfile',
+								'verb' => 'GET' 
+						),
+						
+						// /schedulebackup => BackupController#scheduleBackup()
+						array (
+								'name' => 'backup#scheduleBackup',
+								'url' => '/schedulebackup',
+								'verb' => 'PUT' 
+						),
+						
+						// /restoreaction => BackupController#restoreAction(string $restoreConfig)
+						array (
+								'name' => 'backup#restoreAction',
+								'url' => '/restoreaction',
+								'verb' => 'PUT' 
+						),
+						
+						// /setBackupSchedule -> ConfigController::setBackupSchedule(string $schedule)
+						array (
+								'name' => 'config#setBackupSchedule',
+								'url' => '/setBackupSchedule',
+								'verb' => 'PUT' 
+						),
+						
+						// /setScheduleTime -> ConfigController::setScheduleTime(int $scheduleTime)
+						array (
+								'name' => 'config#setScheduleTime',
+								'url' => '/setScheduleTime',
+								'verb' => 'PUT' 
+						),
+						
+						// /setScheduleTime -> BackupController::setBackupScheduled(boolean $scheduled)
+						array (
+								'name' => 'backup#setBackupScheduled',
+								'url' => '/setBackupScheduled',
+								'verb' => 'PUT' 
+						) 
+				) 
+		));

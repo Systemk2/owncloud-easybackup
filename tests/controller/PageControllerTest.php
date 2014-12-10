@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,36 +21,34 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Controller;
-
 
 use \OCA\EasyBackup\BaseTestCase;
 
 require_once (__DIR__ . '/../basetestcase.php');
 
 class PageControllerTest extends \OCA\EasyBackup\BaseTestCase {
-
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Controller\PageController
 	 */
 	private $cut;
 
-
 	protected function setUp() {
 		parent::setUp();
-
+		
 		$configServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\ConfigService')->disableOriginalConstructor()->getMock();
-		$this->container->registerService('ConfigService', function($c) use ($configServiceMock) {
-			return $configServiceMock;
-		});
-
+		$this->container->registerService('ConfigService', 
+				function ($c) use($configServiceMock) {
+					return $configServiceMock;
+				});
+		
 		$urlGeneratorMock = $this->getMock('\OCP\IURLGenerator');
-		$this->container->registerService('URLGenerator', function($c) use ($urlGeneratorMock) {
+		$this->container->registerService('URLGenerator', function ($c) use($urlGeneratorMock) {
 			return $urlGeneratorMock;
 		});
-
+		
 		$this->cut = $this->container->query('PageController');
 	}
 

@@ -20,30 +20,29 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-\OCP\Util::addScript('easybackup', 'easybackup');  // add js/easybackup.js
-\OCP\Util::addScript('easybackup', 'logfiletailer');  // add js/logfiletailer.js
-\OCP\Util::addStyle('easybackup', 'easybackup');  // add css/easybackup.css
+\OCP\Util::addScript('easybackup', 'easybackup'); // add js/easybackup.js
+\OCP\Util::addScript('easybackup', 'logfiletailer'); // add js/logfiletailer.js
+\OCP\Util::addStyle('easybackup', 'easybackup'); // add css/easybackup.css
 
 \OCP\App::addNavigationEntry(
 		array (
-
+				
 				// the string under which your app will be referenced in owncloud
 				'id' => 'easybackup',
-
+				
 				// sorting weight for the navigation. The higher the number, the higher
 				// will it be listed in the navigation
 				'order' => 10,
-
+				
 				// the route that will be shown on startup
 				'href' => \OCP\Util::linkToRoute('easybackup.page.configuration'),
-
+				
 				// the icon that will be shown in the navigation
 				// this file needs to exist in img/...
 				'icon' => \OCP\Util::imagePath('easybackup', 'easybackup_logo.png'),
-
+				
 				// the title of your application. This will be used in the
 				// navigation or on the settings page of your app
-				'name' => 'EasyBackup'
-));
+				'name' => 'EasyBackup' 
+		));
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -27,28 +28,33 @@ use \OCA\EasyBackup\AppInfo\Application;
 require_once (__DIR__ . '/classloader.php');
 
 abstract class BaseTestCase extends \PHPUnit_Framework_TestCase {
-
+	
 	/**
+	 *
 	 * @var \OCP\AppFramework\IAppContainer
 	 */
 	protected $container;
-
+	
 	/**
+	 *
 	 * @var \OCP\IRequest
 	 */
 	protected $requestMock;
-
+	
 	/**
+	 *
 	 * @var \OCP\ILogger
 	 */
 	protected $loggerMock;
-
+	
 	/**
+	 *
 	 * @var \OCP\IL10N
 	 */
 	protected $translationMock;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\ResponseFactory
 	 */
 	protected $responseFactoryMock;
@@ -56,25 +62,27 @@ abstract class BaseTestCase extends \PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$app = new Application();
 		$this->container = $app->getContainer();
-
+		
 		$this->requestMock = $requestMock = $this->getMock('\OCP\IRequest');
-		$this->container->registerService('Request', function($c) use ($requestMock) {
+		$this->container->registerService('Request', function ($c) use($requestMock) {
 			return $requestMock;
 		});
-
+		
 		$this->loggerMock = $loggerMock = $this->getMock('\OCP\ILogger');
-		$this->container->registerService('Logger', function($c) use ($loggerMock) {
+		$this->container->registerService('Logger', function ($c) use($loggerMock) {
 			return $loggerMock;
 		});
-
+		
 		$this->translationMock = $translationMock = $this->getMock('\OCP\IL10N');
-		$this->container->registerService('TranslationService', function($c) use ($translationMock) {
-			return $translationMock;
-		});
-
+		$this->container->registerService('TranslationService', 
+				function ($c) use($translationMock) {
+					return $translationMock;
+				});
+		
 		$this->responseFactoryMock = $responseFactoryMock = $this->getMock('\OCA\EasyBackup\ResponseFactory');
-		$this->container->registerService('ResponseFactory', function($c) use ($responseFactoryMock) {
-			return $responseFactoryMock;
-		});
+		$this->container->registerService('ResponseFactory', 
+				function ($c) use($responseFactoryMock) {
+					return $responseFactoryMock;
+				});
 	}
 }

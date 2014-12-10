@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,44 +20,39 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup\Controller;
 
 use OCA\EasyBackup\StatusContainer;
-
 use \OCA\EasyBackup\EasyBackupException;
 use \OCA\EasyBackup\ResponseFactory;
 use \OCA\EasyBackup\Service\BackupService;
 use \OCA\EasyBackup\Service\ConfigService;
-
 use \OCP\IL10N;
 use \OCP\ILogger;
 use \OCP\IRequest;
 
 class BackupController extends BaseController {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
-
+	
 	/**
+	 *
 	 * @var \OCP\IL10N
 	 */
 	protected $trans;
 
-	public function __construct($appName,
-			IRequest $request,
-			ILogger $logger,
-			BackupService $backupService,
-			ConfigService $configService,
-			ResponseFactory $responseFactory,
-			IL10N $trans) {
+	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService, 
+			ConfigService $configService, ResponseFactory $responseFactory, IL10N $trans) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->backupService = $backupService;
 		$this->configService = $configService;
@@ -68,7 +64,7 @@ class BackupController extends BaseController {
 	 */
 	protected function scheduleBackup() {
 		$statusContainer = $this->backupService->createStatusInformation();
-		if($statusContainer->getOverallStatus() == StatusContainer::ERROR) {
+		if ($statusContainer->getOverallStatus() == StatusContainer::ERROR) {
 			throw new EasyBackupException($this->trans->t('Not all preconditions are met, backup cannot be scheduled'));
 		}
 		$this->backupService->executeBackup();
@@ -77,15 +73,15 @@ class BackupController extends BaseController {
 	/**
 	 * @ControllerManaged
 	 *
-	 * @param boolean $scheduled
+	 * @param boolean $scheduled        	
 	 */
 	protected function setBackupScheduled($scheduled) {
 		$statusContainer = $this->backupService->createStatusInformation();
-		if($statusContainer->getOverallStatus() == StatusContainer::ERROR) {
+		if ($statusContainer->getOverallStatus() == StatusContainer::ERROR) {
 			throw new EasyBackupException($this->trans->t('Not all preconditions are met, backup cannot be scheduled'));
 		}
 		$this->configService->setBackupScheduled($scheduled);
-		if($scheduled) {
+		if ($scheduled) {
 			$this->backupService->scheduleBackupJob();
 		} else {
 			$this->backupService->unScheduleBackupJob();
@@ -95,7 +91,7 @@ class BackupController extends BaseController {
 	/**
 	 * @ControllerManaged
 	 *
-	 * @param string $config
+	 * @param string $config        	
 	 */
 	protected function restoreAction($restoreConfig) {
 		$this->backupService->scheduleRestoreJob($restoreConfig);

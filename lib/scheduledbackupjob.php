@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,42 +20,43 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use \OCA\EasyBackup\AppInfo\Application;
-
 use \OCP\BackgroundJob\IJobList;
 
 class ScheduledBackupJob extends \OC\BackgroundJob\Job {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\IRunnable
 	 */
 	private $runnable = null;
-
+	
 	/**
+	 *
 	 * @var \OCP\IContainer
 	 */
 	private $container;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ScheduleService
 	 */
 	private $scheduleService;
-
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	private $configService;
 
-
 	/**
+	 *
 	 * @return \OCP\IContainer
 	 */
 	private function getContainer() {
-		if(!$this->container) {
+		if (! $this->container) {
 			$app = new Application();
 			$this->container = $app->getContainer();
 		}
@@ -62,30 +64,33 @@ class ScheduledBackupJob extends \OC\BackgroundJob\Job {
 	}
 
 	/**
+	 *
 	 * @return \OCA\EasyBackup\IRunnable
 	 */
 	private function getRunnable() {
-		if(!$this->runnable) {
+		if (! $this->runnable) {
 			$this->runnable = $this->getContainer()->query('ShellExecRunnable');
 		}
 		return $this->runnable;
 	}
 
 	/**
+	 *
 	 * @return \OCA\EasyBackup\Service\ScheduleService
 	 */
 	private function getScheduleService() {
-		if(!$this->scheduleService) {
+		if (! $this->scheduleService) {
 			$this->scheduleService = $this->getContainer()->query('ScheduleService');
 		}
 		return $this->scheduleService;
 	}
 
 	/**
+	 *
 	 * @return \OCA\EasyBackup\Service\ConfigService
 	 */
 	private function getConfigService() {
-		if(!$this->configService) {
+		if (! $this->configService) {
 			$this->configService = $this->getContainer()->query('ConfigService');
 		}
 		return $this->configService;
@@ -94,12 +99,12 @@ class ScheduledBackupJob extends \OC\BackgroundJob\Job {
 	/**
 	 * Run the job if the scheduling conditions are met
 	 *
-	 * @param \OCP\BackgroundJob\IJobList $jobList
-	 * @param \OC\Log $logger
+	 * @param \OCP\BackgroundJob\IJobList $jobList        	
+	 * @param \OC\Log $logger        	
 	 */
 	public function execute($jobList, $logger = null) {
 		$firstRunAtHour = $this->getConfigService()->getScheduleTimeUTC();
-		if($this->getLastRun()) {
+		if ($this->getLastRun()) {
 			$lastRun = new \DateTime();
 			$lastRun->setTimestamp($this->getLastRun());
 			$shouldExecute = $this->getScheduleService()->isToBeExecutedNow($firstRunAtHour, $lastRun);
@@ -110,10 +115,11 @@ class ScheduledBackupJob extends \OC\BackgroundJob\Job {
 			parent::execute($jobList, $logger);
 		}
 	}
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see OC\BackgroundJob.Job::run()
-	*/
+	 */
 	public function run($commandHandlerString) {
 		$this->getRunnable()->run($commandHandlerString);
 	}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,30 +20,30 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use \OCA\EasyBackup\Service\ShellExecService;
 use \OCP\BackgroundJob;
 
 class ShellExecRunnable implements IRunnable {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ShellExecService
 	 */
 	private $shellExecService;
 
-
 	public function __construct(ShellExecService $shellExecService) {
 		$this->shellExecService = $shellExecService;
 	}
-
-	/* (non-PHPdoc)
+	
+	/*
+	 * (non-PHPdoc)
 	 * @see OCA\EasyBackup.IRunnable::run()
 	 */
 	public function run($commandHandlerString) {
-		$commandHandler = new $commandHandlerString;
-		if($commandHandler->preExec()) {
+		$commandHandler = new $commandHandlerString();
+		if ($commandHandler->preExec()) {
 			$result = $this->shellExecService->shellExec($commandHandler->getCommand());
 			$commandHandler->postExec($result->isOk());
 			return $result->isOk();

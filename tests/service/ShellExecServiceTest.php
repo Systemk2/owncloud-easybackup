@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,7 +21,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use \OCA\EasyBackup\BaseTestCase;
@@ -28,7 +28,6 @@ use \OCA\EasyBackup\BaseTestCase;
 require_once (__DIR__ . '/../basetestcase.php');
 
 class TestCommandHandler implements ICommandHandler {
-
 	public static $test = 999;
 
 	public function preExec() {
@@ -61,9 +60,9 @@ class TestCommandHandlerFailure implements ICommandHandler {
 }
 
 class ShellExecServiceTest extends \OCA\EasyBackup\BaseTestCase {
-
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\Service\ShellExecService
 	 */
 	private $cut;

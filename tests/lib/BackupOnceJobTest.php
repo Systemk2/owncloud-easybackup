@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -20,7 +21,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
 use \OCA\EasyBackup\AppInfo\Application;
@@ -28,26 +28,28 @@ use \OCA\EasyBackup\AppInfo\Application;
 require_once (__DIR__ . '/../basetestcase.php');
 
 class RunOnceJobTest extends \OCA\EasyBackup\BaseTestCase {
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\RunOnceJob
 	 */
 	private $cut;
-
+	
 	/**
+	 *
 	 * @var \OCA\EasyBackup\ShellExecRunnable
 	 */
 	private $shellExecRunnableMock;
 
 	protected function setUp() {
 		parent::setUp();
-
-		$this->shellExecRunnableMock = $shellExecRunnableMock = $this->getMockBuilder('\OCA\EasyBackup\ShellExecRunnable')
-		->disableOriginalConstructor()->getMock();
-		$this->container->registerService('ShellExecRunnable', function($c) use ($shellExecRunnableMock) {
-			return $shellExecRunnableMock;
-		});
-
+		
+		$this->shellExecRunnableMock = $shellExecRunnableMock = $this->getMockBuilder('\OCA\EasyBackup\ShellExecRunnable')->disableOriginalConstructor()->getMock();
+		$this->container->registerService('ShellExecRunnable', 
+				function ($c) use($shellExecRunnableMock) {
+					return $shellExecRunnableMock;
+				});
+		
 		$this->cut = new RunOnceJob();
 		$reflection = new \ReflectionObject($this->cut);
 		$container = $reflection->getProperty('runnable');

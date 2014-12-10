@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ownCloud - EasyBackup
  *
@@ -19,81 +20,86 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 namespace OCA\EasyBackup;
 
-
 class StatusContainer {
-
-	private $statusMap = array();
-	private $localizedMessageMap = array();
-
+	private $statusMap = array ();
+	private $localizedMessageMap = array ();
 	const OK = 'OK';
 	const WARN = 'WARN';
 	const ERROR = 'ERROR';
-
-	private static $allowedStatus = array(self::OK, self::WARN, self::ERROR);
+	private static $allowedStatus = array (
+			self::OK,
+			self::WARN,
+			self::ERROR 
+	);
 
 	/**
-	 * @param string $statusType
-	 * @param string $status OK|WARN|ERROR
+	 *
+	 * @param string $statusType        	
+	 * @param string $status
+	 *        	OK|WARN|ERROR
 	 */
 	public function addStatus($statusType, $status, $localizedStatusMessage) {
-		if(!in_array($status, self::$allowedStatus, true)) {
+		if (! in_array($status, self::$allowedStatus, true)) {
 			throw new EasyBackupException("StatusContainer: Unknown status $status");
 		}
-		$this->statusMap[$statusType] = $status;
-		$this->localizedMessageMap[$statusType] = $localizedStatusMessage;
+		$this->statusMap [$statusType] = $status;
+		$this->localizedMessageMap [$statusType] = $localizedStatusMessage;
 	}
 
 	/**
-	 * @param string $statusType
+	 *
+	 * @param string $statusType        	
 	 * @throws EasyBackupException
 	 * @return boolean;
 	 */
 	public function getStatus($statusType) {
-		if(!array_key_exists($statusType, $this->statusMap)) {
+		if (! array_key_exists($statusType, $this->statusMap)) {
 			throw new EasyBackupException("Key $statusType not found in status map");
 		}
-		return $this->statusMap[$statusType];
+		return $this->statusMap [$statusType];
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function getOverallStatus() {
-		if(in_array(self::ERROR, $this->statusMap)) {
+		if (in_array(self::ERROR, $this->statusMap)) {
 			return self::ERROR;
 		}
-		if(in_array(self::WARN, $this->statusMap)) {
+		if (in_array(self::WARN, $this->statusMap)) {
 			return self::WARN;
 		}
 		return self::OK;
 	}
 
 	/**
-	 * @param string $statusType
+	 *
+	 * @param string $statusType        	
 	 * @return string
 	 */
 	public function getStatusAsText($statusType) {
-		if(!array_key_exists($statusType, $this->localizedMessageMap)) {
+		if (! array_key_exists($statusType, $this->localizedMessageMap)) {
 			throw new EasyBackupException("Key $statusType not found in localized message map map");
 		}
-		return $this->localizedMessageMap[$statusType];
+		return $this->localizedMessageMap [$statusType];
 	}
 
 	/**
+	 *
 	 * @return array:array:string
 	 */
 	public function getAllStatus() {
-		$allStatus = array();
-		foreach($this->statusMap as $statusType => $status) {
-			$singleStatus = array(
+		$allStatus = array ();
+		foreach ( $this->statusMap as $statusType => $status ) {
+			$singleStatus = array (
 					'status' => $status,
 					'statusType' => $statusType,
-					'localized' => $this->getStatusAsText($statusType)
+					'localized' => $this->getStatusAsText($statusType) 
 			);
-			$allStatus[] = $singleStatus;
+			$allStatus [] = $singleStatus;
 		}
 		return $allStatus;
 	}

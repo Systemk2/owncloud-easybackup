@@ -29,13 +29,13 @@ use \OCP\BackgroundJob\IJob;
 use \OCP\IConfig;
 
 class ConfigService {
-
+	
 	/**
 	 *
 	 * @var \OCP\IConfig
 	 */
 	protected $owncloudConfig;
-
+	
 	/**
 	 *
 	 * @var string
@@ -73,7 +73,7 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param string $updateHost
+	 * @param string $updateHost        	
 	 */
 	public function setHostUserName($updateHost) {
 		$this->setAppValue('HOST_USER_NAME', $updateHost);
@@ -89,7 +89,7 @@ class ConfigService {
 
 	public function getHost() {
 		$user = $this->getAppValue('HOST_USER_NAME');
-		return  "$user@$user.trustedspace.de";
+		return "$user@$user.trustedspace.de";
 	}
 
 	/**
@@ -110,8 +110,8 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param string $key
-	 * @param string[optional] $default
+	 * @param string $key        	
+	 * @param string[optional] $default        	
 	 * @return string
 	 */
 	public function getAppValue($key, $default = null) {
@@ -120,8 +120,8 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param string $key
-	 * @param string $value
+	 * @param string $key        	
+	 * @param string $value        	
 	 */
 	public function setAppValue($key, $value) {
 		$this->owncloudConfig->setAppValue($this->appName, $key, $value);
@@ -145,7 +145,7 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param string $schedule
+	 * @param string $schedule        	
 	 */
 	public function setBackupSchedule($schedule) {
 		$this->setAppValue('SCHEDULED', $schedule);
@@ -174,7 +174,7 @@ class ConfigService {
 	 * @return integer schedule time in local timezone
 	 */
 	public function getScheduleTime() {
-		$scheduleTime = intval($this->getAppValue('SCHEDULE_TIME', - 1));
+		$scheduleTime = intval($this->getAppValue('SCHEDULE_TIME', 0));
 		$timezoneOffset = \OC::$session->get('timezone');
 		if ($timezoneOffset && $scheduleTime >= 0) {
 			$scheduleTime += $timezoneOffset;
@@ -192,7 +192,7 @@ class ConfigService {
 	 * @return integer schedule time in UTC
 	 */
 	public function getScheduleTimeUTC() {
-		return intval($this->getAppValue('SCHEDULE_TIME', - 1));
+		return intval($this->getAppValue('SCHEDULE_TIME', 0));
 	}
 
 	/**
@@ -205,7 +205,7 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param $scheduled boolean
+	 * @param $scheduled boolean        	
 	 */
 	public function setBackupScheduled($scheduled) {
 		return $this->setAppValue('SCHEDULE_ACTIVE', $scheduled);
@@ -221,7 +221,7 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param string $command
+	 * @param string $command        	
 	 */
 	public function setBackupCommand($command) {
 		$this->setAppValue('BACKUP_COMMAND', $command);
@@ -237,7 +237,7 @@ class ConfigService {
 
 	/**
 	 *
-	 * @param string $command
+	 * @param string $command        	
 	 */
 	public function setRestoreCommand($command) {
 		$this->setAppValue('RESTORE_COMMAND', $command);
@@ -246,10 +246,10 @@ class ConfigService {
 	/**
 	 * Schedule a job for delayed / regular execution
 	 *
-	 * @param \OCP\BackgroundJob\IJob $job
+	 * @param \OCP\BackgroundJob\IJob $job        	
 	 * @param string $commandHandlerString
 	 *        	a string representing a \OCA\EasyBackup\ICommandHandler instance
-	 *
+	 *        	
 	 * @throws \OCA\EasyBackup\EasyBackupException when the provided commandHandlerString
 	 *         designates not a type \OCA\EasyBackup\ICommandHandler
 	 */
@@ -283,24 +283,26 @@ class ConfigService {
 	 */
 	public function isRegistered(IJob $job) {
 		$jobList = \OC::$server->getJobList();
-
-		foreach($jobList->getAll() as $registeredJob) {
-			if(get_class($job) === get_class($registeredJob)) {
+		
+		foreach ( $jobList->getAll() as $registeredJob ) {
+			if (get_class($job) === get_class($registeredJob)) {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
 
 	/**
-	 * @param string $publicKey
+	 *
+	 * @param string $publicKey        	
 	 */
 	public function setPublicKey($publicKey) {
 		$this->setAppValue('PUBLIC_KEY', $publicKey);
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getPublicKey() {
