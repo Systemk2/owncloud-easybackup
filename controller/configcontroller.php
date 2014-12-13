@@ -144,7 +144,7 @@ class ConfigController extends BaseController {
 	private function renderPublicKeyHtml() {
 		$statusContainer = $this->backupService->createStatusInformation();
 		$parameters = array (
-				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
+				'statusContainer' => $statusContainer,
 				'publicKey' => $this->configService->getPublicKey() 
 		);
 		return $this->renderHtml('publickey.inc', $parameters);

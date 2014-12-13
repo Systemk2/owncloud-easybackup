@@ -103,7 +103,7 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 				$this->returnValue('days_01'));
 		
 		$now = new \DateTime(null, new \DateTimeZone('UTC'));
-		$firstRunAtHour = intval($now->format('H'));
+		$firstRunAtHour = intval($now->format('H')) + 1;
 		
 		$twelveHoursAgo = $now->sub(new \DateInterval('PT12H'));
 		$retVal = $this->cut->isToBeExecutedNow($firstRunAtHour, $twelveHoursAgo);

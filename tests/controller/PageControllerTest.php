@@ -24,6 +24,7 @@
 namespace OCA\EasyBackup\Controller;
 
 use \OCA\EasyBackup\BaseTestCase;
+use \OCA\EasyBackup\StatusContainer;
 
 require_once (__DIR__ . '/../basetestcase.php');
 
@@ -34,6 +35,12 @@ class PageControllerTest extends \OCA\EasyBackup\BaseTestCase {
 	 * @var \OCA\EasyBackup\Controller\PageController
 	 */
 	private $cut;
+	
+	/**
+	 *
+	 * @var \OCA\EasyBackup\Service\BackupService
+	 */
+	private $backupServiceMock;
 
 	protected function setUp() {
 		parent::setUp();
@@ -44,6 +51,12 @@ class PageControllerTest extends \OCA\EasyBackup\BaseTestCase {
 					return $configServiceMock;
 				});
 		
+		$this->backupServiceMock = $backupServiceMock = $this->getMockBuilder('\OCA\EasyBackup\Service\BackupService')->disableOriginalConstructor()->getMock();
+		$this->container->registerService('BackupService', 
+				function ($c) use($backupServiceMock) {
+					return $backupServiceMock;
+				});
+		
 		$urlGeneratorMock = $this->getMock('\OCP\IURLGenerator');
 		$this->container->registerService('URLGenerator', function ($c) use($urlGeneratorMock) {
 			return $urlGeneratorMock;
@@ -52,8 +65,47 @@ class PageControllerTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->cut = $this->container->query('PageController');
 	}
 
-	public function testConfigure() {
+	public function testConfiguration() {
+		$this->responseFactoryMock->expects($this->once())->method('createTemplateResponse')->with($this->equalTo('easybackup'), 
+				$this->equalTo('index'), 
+				$this->callback(function ($params) {
+					return $params ['subTemplate'] == 'configuration.inc';
+				}));
 		$retVal = $this->cut->configuration();
-		$this->assertInstanceOf('\OCP\AppFramework\Http\TemplateResponse', $retVal);
+	}
+
+	public function testBackup() {
+		$this->responseFactoryMock->expects($this->once())->method('createTemplateResponse')->with($this->equalTo('easybackup'), 
+				$this->equalTo('index'), 
+				$this->callback(function ($params) {
+					return $params ['subTemplate'] == 'backup.inc';
+				}));
+		$retVal = $this->cut->backup();
+	}
+
+	public function testRestore() {
+		$this->responseFactoryMock->expects($this->once())->method('createTemplateResponse')->with($this->equalTo('easybackup'), 
+				$this->equalTo('index'), 
+				$this->callback(function ($params) {
+					return $params ['subTemplate'] == 'restore.inc';
+				}));
+		$retVal = $this->cut->restore();
+	}
+
+	public function testIndexConfigurationOkBackupOk() {
+		$statusContainer = new StatusContainer();
+		$statusContainer->addStatus('mockStatus', StatusContainer::OK, '');
+		
+		$this->backupServiceMock->expects($this->once())->method('createStatusInformation')->will(
+				$this->returnValue($statusContainer));
+		
+		$this->backupServiceMock->expects($this->atLeastOnce())->method('isLastBackupSuccessful')->will($this->returnValue(true));
+		
+		$this->responseFactoryMock->expects($this->once())->method('createTemplateResponse')->with($this->equalTo('easybackup'), 
+				$this->equalTo('index'), 
+				$this->callback(function ($params) {
+					return $params ['subTemplate'] == 'restore.inc';
+				}));
+		$retVal = $this->cut->index();
 	}
 }

@@ -117,7 +117,7 @@ class ConfigControllerTest extends \OCA\EasyBackup\BaseTestCase {
 		$this->responseFactoryMock->expects($this->at(1))->method('createTemplateResponse')->with($this->equalTo('easybackup'), 
 				$this->equalTo('publickey.inc'), 
 				$this->equalTo(array (
-						'privateKeyOk' => 1,
+						'statusContainer' => $statusContainer,
 						'publicKey' => '***MockKey***' 
 				)))->will($this->returnValue($this->templateResponseMock));
 		

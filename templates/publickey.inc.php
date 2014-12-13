@@ -19,9 +19,13 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+use \OCA\EasyBackup\StatusContainer;
 ?>
-
-<span id="easybackup_publicKeyHint" <?php if(!$_['privateKeyOk']) print_unescaped('style="visibility: hidden"'); ?>>
+$this->getStatusContainer()
+<span id="easybackup_publicKeyHint" <?php
+if ($_ ['statusContainer']->getStatus('privateKeyPresent') != StatusContainer::OK)
+	print_unescaped('style="visibility: hidden"');
+?>>
 		<?php
 		p($l->t('In the TrustedSpace config wizard you are asked for a SSH public key.') . ' ');
 		if ($_ ['publicKey']) {

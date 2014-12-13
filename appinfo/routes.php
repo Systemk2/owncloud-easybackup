@@ -28,10 +28,17 @@ $application->registerRoutes($this,
 		array (
 				'routes' => array (
 						
-						// "/" -> PageController::configuration()
+						// "/" -> PageController::index()
+						array (
+								'name' => 'page#index',
+								'url' => '/',
+								'verb' => 'GET' 
+						),
+						
+						// "/configuration" -> PageController::configuration()
 						array (
 								'name' => 'page#configuration',
-								'url' => '/',
+								'url' => '/configuration',
 								'verb' => 'GET' 
 						),
 						

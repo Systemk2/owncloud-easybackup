@@ -158,7 +158,7 @@ class BackupService {
 		$keyFileName = $this->configService->getPrivateKeyFilename();
 		$knownHostsFileName = $this->configService->getKnownHostsFileName();
 		$backupFolder = $this->configService->getDataDir();
-		$sshCommand = "ssh -q -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
+		$sshCommand = "ssh -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
 		$rsyncOptions = "-rtgov -e '$sshCommand' --include='$dataDirFolder' --include='$dataDirFolder/*/' --include='$dataDirFolder/*/files/***' --exclude=* --numeric-ids --delete --delete-excluded";
 		$rsyncCommand = "rsync $rsyncOptions $dataDir $host:";
 		$command = "$rsyncCommand >> $logfileName 2>&1";

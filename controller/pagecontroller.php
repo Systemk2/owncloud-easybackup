@@ -58,6 +58,12 @@ class PageController extends BaseController {
 	 * @var \OCA\EasyBackup\Service\ScheduleService
 	 */
 	private $scheduleService;
+	
+	/**
+	 *
+	 * @var \OCA\EasyBackup\StatusContainer
+	 */
+	private $statusContainer;
 
 	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService, 
 			ConfigService $configService, ScheduleService $scheduleService, IURLGenerator $urlGenerator, 
@@ -72,9 +78,22 @@ class PageController extends BaseController {
 	/**
 	 * @NoCSRFRequired
 	 */
+	public function index() {
+		if ($this->getStatusContainer()->getOverallStatus() == \OCA\EasyBackup\StatusContainer::OK) {
+			if ($this->backupService->isLastBackupSuccessful()) {
+				return $this->restore();
+			}
+			return $this->backup();
+		}
+		return $this->configuration();
+	}
+
+	/**
+	 * @NoCSRFRequired
+	 */
 	public function configuration() {
 		$parameters = $this->createParameters('configuration.inc');
-		return new TemplateResponse($this->appName, 'index', $parameters);
+		return $this->responseFactory->createTemplateResponse($this->appName, 'index', $parameters);
 	}
 
 	/**
@@ -82,7 +101,7 @@ class PageController extends BaseController {
 	 */
 	public function backup() {
 		$parameters = $this->createParameters('backup.inc');
-		return new TemplateResponse($this->appName, 'index', $parameters);
+		return $this->responseFactory->createTemplateResponse($this->appName, 'index', $parameters);
 	}
 
 	/**
@@ -90,14 +109,12 @@ class PageController extends BaseController {
 	 */
 	public function restore() {
 		$parameters = $this->createParameters('restore.inc');
-		return new TemplateResponse($this->appName, 'index', $parameters);
+		return $this->responseFactory->createTemplateResponse($this->appName, 'index', $parameters);
 	}
 
 	private function createParameters($subTemplate) {
-		$statusContainer = $this->backupService->createStatusInformation();
-		
 		$parameters = array (
-				'statusContainer' => $statusContainer,
+				'statusContainer' => $this->getStatusContainer(),
 				'userName' => $this->configService->getHostUserName(),
 				'keyUploadUrl' => $this->urlGenerator->linkToRoute('easybackup.config.uploadSshKey'),
 				'schedule' => $this->scheduleService,
@@ -108,7 +125,6 @@ class PageController extends BaseController {
 				'restoreUrl' => $this->urlGenerator->linkToRoute('easybackup.page.restore'),
 				'logfileUrl' => $this->urlGenerator->linkToRoute('easybackup.logfileview.getCompleteLogfile'),
 				'subTemplate' => $subTemplate,
-				'privateKeyOk' => $statusContainer->getStatus('privateKeyPresent') == StatusContainer::OK,
 				'publicKey' => $this->configService->getPublicKey(),
 				'isExecuting' => $this->backupService->isExecutingOrWaitingForRun(),
 				'lastBackupSuccessful' => $this->backupService->isLastBackupSuccessful(),
@@ -116,5 +132,12 @@ class PageController extends BaseController {
 		);
 		
 		return $parameters;
+	}
+
+	private function getStatusContainer() {
+		if ($this->statusContainer == null) {
+			$this->statusContainer = $this->backupService->createStatusInformation();
+		}
+		return $this->statusContainer;
 	}
 }

@@ -103,6 +103,10 @@ class LogfileviewController extends BaseController {
 		$maxWidth = $this->configService->getDisplayWidth();
 		
 		foreach ( $lines as $line ) {
+			// Get rid of "Could not create directory '/var/www/.ssh'."
+			if (preg_match("/\.ssh'\./", $line)) {
+				continue;
+			}
 			while ( strlen($line) > $maxWidth ) {
 				$wrappedLines [] = substr($line, 0, $maxWidth) . "\n";
 				$line = substr($line, $maxWidth);
