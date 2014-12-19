@@ -183,16 +183,18 @@ class ScheduleService {
 			return $currentHour >= $firstRunAtHour;
 		} else {
 			// Otherwise we just check if enough time has passed since last run
-			$lastRunDateAndHour = \DateTime::createFromFormat('Y-m-d H|', $lastRun->format('Y-m-d H'));
+			$lastRunHour = intval($lastRun->format('H'));
+			// Ignore minutes and seconds
+			$lastRun->setTime($lastRunHour, 0, 0);
 			
 			if (strpos($this->getCurrentScheduleKey(), 'days_') === 0) {
 				$dateInterval = new \DateInterval('P' . substr($this->getCurrentScheduleKey(), - 2) . 'D');
-				$nextRun = $lastRunDateAndHour->add($dateInterval);
+				$nextRun = $lastRun->add($dateInterval);
 				// next run is on next day, at the specified start time (hour of day)
 				$nextRun->setTime($firstRunAtHour, 00);
 			} elseif (strpos($this->getCurrentScheduleKey(), 'hours_') === 0) {
 				$dateInterval = new \DateInterval('PT' . substr($this->getCurrentScheduleKey(), - 2) . 'H');
-				$nextRun = $lastRunDateAndHour->add($dateInterval);
+				$nextRun = $lastRun->add($dateInterval);
 			} else {
 				throw new EasyBackupException('Schedule key ' . $this->getCurrentScheduleKey() . ' cannot be interpreted');
 			}

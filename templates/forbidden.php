@@ -34,7 +34,7 @@
 			</div>
 			<div>
 				<?php
-					p($l->t('Access forbidden: You need administrator rights to use this app'));
+				p($l->t('Access forbidden: You need administrator rights to use this app'));
 				?>
 			</div>
 		</div>

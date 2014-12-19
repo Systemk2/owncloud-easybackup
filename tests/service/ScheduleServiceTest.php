@@ -98,15 +98,19 @@ class ScheduleServiceTest extends \OCA\EasyBackup\BaseTestCase {
 	}
 
 	public function testIsToBeExecutedNow4() {
-		// Executed 12h before, scheduled to run every day
+		// Executed 24h before, scheduled to run every day, at 2h in the future
 		$this->configServiceMock->expects($this->once())->method('getAppValue')->with($this->equalTo('SCHEDULED'))->will(
 				$this->returnValue('days_01'));
 		
 		$now = new \DateTime(null, new \DateTimeZone('UTC'));
 		$firstRunAtHour = intval($now->format('H')) + 1;
+		if ($firstRunAtHour > 23) {
+			// Cannot run test after 23h00
+			return;
+		}
 		
-		$twelveHoursAgo = $now->sub(new \DateInterval('PT12H'));
-		$retVal = $this->cut->isToBeExecutedNow($firstRunAtHour, $twelveHoursAgo);
+		$twentyFourHoursAgo = $now->sub(new \DateInterval('PT24H'));
+		$retVal = $this->cut->isToBeExecutedNow($firstRunAtHour, $twentyFourHoursAgo);
 		$this->assertFalse($retVal);
 	}
 

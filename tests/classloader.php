@@ -74,7 +74,7 @@ spl_autoload_register(
 				$triedPaths [] = $relPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . $filename;
 				if (! file_exists($relPath)) {
 					// If not found in the root of the app directory, insert '/lib' after app id and try again
-					$parts = split('/easybackup/', $relPath);
+					$parts = explode('/easybackup/', $relPath);
 					if (count($parts) == 2) {
 						$triedPaths [] = $relPath = $parts [0] . '/easybackup/lib/' . $parts [1];
 					}

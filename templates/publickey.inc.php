@@ -21,7 +21,6 @@
  */
 use \OCA\EasyBackup\StatusContainer;
 ?>
-$this->getStatusContainer()
 <span id="easybackup_publicKeyHint" <?php
 if ($_ ['statusContainer']->getStatus('privateKeyPresent') != StatusContainer::OK)
 	print_unescaped('style="visibility: hidden"');

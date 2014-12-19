@@ -41,88 +41,88 @@ class Application extends App {
 
 	public function __construct(array $urlParams = array()) {
 		parent::__construct('easybackup', $urlParams);
-
+		
 		/**
 		 * Controllers
 		 */
-		$this->getContainer()->registerService('PageController',
+		$this->getContainer()->registerService('PageController', 
 				function ($c) {
-					return new PageController($c->query('AppName'), $c->query('Request'), $c->query('Logger'),
-							$c->query('BackupService'), $c->query('ConfigService'), $c->query('ScheduleService'),
+					return new PageController($c->query('AppName'), $c->query('Request'), $c->query('Logger'), 
+							$c->query('BackupService'), $c->query('ConfigService'), $c->query('ScheduleService'), 
 							$c->query('URLGenerator'), $c->query('ResponseFactory'), $c->query('Container'));
 				});
-
-		$this->getContainer()->registerService('ConfigController',
+		
+		$this->getContainer()->registerService('ConfigController', 
 				function ($c) {
-					return new ConfigController($c->query('AppName'), $c->query('Request'), $c->query('Logger'),
+					return new ConfigController($c->query('AppName'), $c->query('Request'), $c->query('Logger'), 
 							$c->query('BackupService'), $c->query('ConfigService'), $c->query('ResponseFactory'));
 				});
-
-		$this->getContainer()->registerService('BackupController',
+		
+		$this->getContainer()->registerService('BackupController', 
 				function ($c) {
-					return new BackupController($c->query('AppName'), $c->query('Request'), $c->query('Logger'),
-							$c->query('BackupService'), $c->query('ConfigService'), $c->query('ResponseFactory'),
+					return new BackupController($c->query('AppName'), $c->query('Request'), $c->query('Logger'), 
+							$c->query('BackupService'), $c->query('ConfigService'), $c->query('ResponseFactory'), 
 							$c->query('TranslationService'));
 				});
-
-		$this->getContainer()->registerService('LogfileviewController',
+		
+		$this->getContainer()->registerService('LogfileviewController', 
 				function ($c) {
-					return new LogfileviewController($c->query('AppName'), $c->query('Request'), $c->query('Logger'),
+					return new LogfileviewController($c->query('AppName'), $c->query('Request'), $c->query('Logger'), 
 							$c->query('ConfigService'), $c->query('BackupService'), $c->query('ResponseFactory'));
 				});
-
+		
 		/**
 		 * Services
 		 */
-		$this->getContainer()->registerService('BackupService',
+		$this->getContainer()->registerService('BackupService', 
 				function ($c) {
-					return new BackupService($c->query('RunOnceJob'), $c->query('ScheduledBackupJob'), $c->query('ConfigService'),
-							$c->query('ShellExecService'), $c->query('TranslationService'));
+					return new BackupService($c->query('RunOnceJob'), $c->query('ScheduledBackupJob'), $c->query('ConfigService'), 
+							$c->query('ShellExecService'), $c->query('TranslationService'), $c->query('API'));
 				});
-
+		
 		$this->getContainer()->registerService('RunOnceJob', function ($c) {
 			return new RunOnceJob();
 		});
-
+		
 		$this->getContainer()->registerService('ScheduledBackupJob', function ($c) {
 			return new ScheduledBackupJob();
 		});
-
-		$this->getContainer()->registerService('TranslationService',
+		
+		$this->getContainer()->registerService('TranslationService', 
 				function ($c) {
 					return $c->query('ServerContainer')->getL10N($c->query('AppName'));
 				});
-
-		$this->getContainer()->registerService('ShellExecRunnable',
+		
+		$this->getContainer()->registerService('ShellExecRunnable', 
 				function ($c) {
 					return new ShellExecRunnable($c->query('ShellExecService'));
 				});
-
+		
 		$this->getContainer()->registerService('ShellExecService', function ($c) {
 			return new ShellExecService();
 		});
-
-		$this->getContainer()->registerService('ConfigService',
+		
+		$this->getContainer()->registerService('ConfigService', 
 				function ($c) {
 					return new ConfigService($c->query('AppName'), $c->query('OwncloudConfig'));
 				});
-
-		$this->getContainer()->registerService('Logger',
+		
+		$this->getContainer()->registerService('Logger', 
 				function ($c) {
 					return $c->query('ServerContainer')->getLogger();
 				});
-
-		$this->getContainer()->registerService('OwncloudConfig',
+		
+		$this->getContainer()->registerService('OwncloudConfig', 
 				function ($c) {
 					return $c->query('ServerContainer')->getConfig();
 				});
-
-		$this->getContainer()->registerService('URLGenerator',
+		
+		$this->getContainer()->registerService('URLGenerator', 
 				function ($c) {
 					return $c->query('ServerContainer')->getURLGenerator();
 				});
-
-		$this->getContainer()->registerService('ScheduleService',
+		
+		$this->getContainer()->registerService('ScheduleService', 
 				function ($c) {
 					return new ScheduleService($c->query('ConfigService'), $c->query('TranslationService'));
 				});

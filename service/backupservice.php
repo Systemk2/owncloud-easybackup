@@ -22,58 +22,66 @@
  */
 namespace OCA\EasyBackup\Service;
 
-use OCA\EasyBackup\EasyBackupException;
+use \OCA\EasyBackup\EasyBackupException;
 use \OCA\EasyBackup\RunOnceJob;
 use \OCA\EasyBackup\ScheduledBackupJob;
 use \OCA\EasyBackup\StatusContainer;
 use \OCP\IL10N;
+use \OCP\AppFramework\IApi;
 
 class BackupService {
-	const MAX_TIME_INTERVAL = 'PT15M'; // 15 Minutes
+	const MAX_TIME_INTERVAL = 'PT05H'; // 5 hours
 	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\RunOnceJob
 	 */
-	protected $runOnceJob;
+	private $runOnceJob;
 	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\ScheduledBackupJob
 	 */
-	protected $scheduledBackupJob;
+	private $scheduledBackupJob;
 	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\ScheduledRestoreJob
 	 */
-	protected $scheduledRestoreJob;
+	private $scheduledRestoreJob;
 	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
-	protected $configService;
+	private $configService;
 	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ShellExecService
 	 */
-	protected $shellExecService;
+	private $shellExecService;
 	
 	/**
 	 *
 	 * @var \OCP\IL10N
 	 */
-	protected $trans;
+	private $trans;
+	
+	/**
+	 *
+	 * @var \OCP\AppFramework\IApi
+	 */
+	private $api;
 
 	public function __construct(RunOnceJob $runOnceJob, ScheduledBackupJob $scheduledBackupJob, ConfigService $configService, 
-			ShellExecService $shellExecService, IL10N $trans) {
+			ShellExecService $shellExecService, IL10N $trans, IApi $api) {
 		$this->runOnceJob = $runOnceJob;
 		$this->scheduledBackupJob = $scheduledBackupJob;
 		$this->configService = $configService;
 		$this->shellExecService = $shellExecService;
 		$this->trans = $trans;
+		$this->api = $api;
 	}
 
 	public function checkSafeModeNotEnabled() {
@@ -159,7 +167,7 @@ class BackupService {
 		$knownHostsFileName = $this->configService->getKnownHostsFileName();
 		$backupFolder = $this->configService->getDataDir();
 		$sshCommand = "ssh -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
-		$rsyncOptions = "-rtgov -e '$sshCommand' --include='$dataDirFolder' --include='$dataDirFolder/*/' --include='$dataDirFolder/*/files/***' --exclude=* --numeric-ids --delete --delete-excluded";
+		$rsyncOptions = "-rtgov -e '$sshCommand' --include='$dataDirFolder' --include='$dataDirFolder/*/' --include='$dataDirFolder/*/files/***' --include='$dataDirFolder/*/files_encryption/***' --exclude=* --numeric-ids --delete --delete-excluded";
 		$rsyncCommand = "rsync $rsyncOptions $dataDir $host:";
 		$command = "$rsyncCommand >> $logfileName 2>&1";
 		
@@ -209,7 +217,7 @@ class BackupService {
 	 * @param boolean $success        	
 	 */
 	public function finishBackup($success) {
-		$this->configService->setAppValue('BACKUP_RUNNING', 'false');
+		$this->setBackupRunning(false);
 		$this->configService->setAppValue('LAST_BACKUP_SUCCESSFUL', $success ? 'true' : 'false');
 		$date = date('Y-m-d H:i:s e');
 		$this->configService->setAppValue('LAST_BACKUP_TIME', $date);
@@ -250,7 +258,14 @@ class BackupService {
 	 * @param boolean $running        	
 	 */
 	public function setBackupRunning($running) {
-		$this->configService->setAppValue('BACKUP_RUNNING', $running ? 'true' : 'false');
+		if ($running) {
+			$this->configService->setAppValue('BACKUP_RUNNING', 'true');
+			$now = new \DateTime('now', new \DateTimeZone('UTC'));
+			$this->configService->setAppValue('BACKUP_RUNNING_SINCE', $now->format('Y-m-d H:i:s e'));
+		} else {
+			$this->configService->setAppValue('BACKUP_RUNNING', 'false');
+			$this->configService->setAppValue('BACKUP_RUNNING_SINCE', null);
+		}
 	}
 
 	/**
@@ -262,16 +277,17 @@ class BackupService {
 		if ($running == 'false') {
 			return false;
 		}
-		$filename = $this->configService->getLogfileName();
-		if (file_exists($filename)) {
-			$ts = filemtime($filename);
+		$runningSince = $this->configService->getAppValue('BACKUP_RUNNING_SINCE');
+		if ($runningSince) {
+			$ts = \DateTime::createFromFormat('Y-m-d H:i:s e', $runningSince);
 		} else {
 			return false;
 		}
-		$lastLogfileEntry = new \DateTime('@' . $ts);
-		if ($lastLogfileEntry->add(new \DateInterval(self::MAX_TIME_INTERVAL)) < new \DateTime()) {
-			// More than MAX_TIME_INTERVAL since the last logfile entry => we suppose the job is hung
-			$this->configService->setAppValue('BACKUP_RUNNING', 'false');
+		$waitUntil = $ts->add(new \DateInterval(self::MAX_TIME_INTERVAL));
+		$now = new \DateTime('now', new \DateTimeZone('UTC'));
+		if ($waitUntil < $now) {
+			// More than MAX_TIME_INTERVAL => we suppose the job is hung
+			$this->setBackupRunning(false);
 			return false;
 		}
 		return true;
@@ -316,7 +332,7 @@ class BackupService {
 		$c = json_decode($restoreConfig, true);
 		$dataDir = $this->configService->getDataDir();
 		// Get the parent of data directory
-		$dataDir = substr($dataDir, 0, strrpos($dataDir, DIRECTORY_SEPARATOR));
+		$parentDir = substr($dataDir, 0, strrpos($dataDir, DIRECTORY_SEPARATOR));
 		$logfileName = $this->configService->getLogfileName();
 		$restoreHostName = $c ['backupuser'] . '@' . $c ['backupserver'];
 		$keyFileName = $this->configService->getPrivateKeyFilename();
@@ -325,14 +341,41 @@ class BackupService {
 		$sshCommand = "ssh -q -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=$knownHostsFileName";
 		$rsyncOptions = "-rtgov -e '$sshCommand' --numeric-ids --omit-dir-times";
 		
+		// When the files_encryption app is enabled, the files in files_encryption/keyfiles
+		// and files_encryption share_keys have to be restored along with the actual files
+		$encryptionAppEnabled = $this->api->isAppEnabled('files_encryption');
 		foreach ( $c ['include'] as $include ) {
 			$rsyncOptions .= " --include='$include'";
+			// Add keys for files and wildcards, not for directories
+			if ($encryptionAppEnabled && substr($include, - 1, 1) != '/') {
+				$matches = array ();
+				preg_match("|^([^/]+)/([^/]+)/.*/([^/]+)|", $include, $matches);
+				$baseDir = $matches [1];
+				$userDir = $matches [2];
+				$fileName = $matches [3];
+				if (preg_match("|^$baseDir/$userDir/files/|", $include, $matches)) {
+					$pathToFile = substr($matches [0], 0, - 1);
+					$keyFile = $pathToFile . '_encryption/keyfiles' . substr($include, strlen($pathToFile));
+					$shareKey = $pathToFile . '_encryption/share-keys' . substr($include, strlen($pathToFile));
+					// Add extensions if include is not a wildcard (*)
+					if (substr($include, - 1, 1) != '*') {
+						$keyFile .= '.key';
+						$shareKey .= ".$userDir.shareKey";
+					}
+					if (! array_search($keyFile, $c ['include'])) {
+						$rsyncOptions .= " --include='$keyFile'";
+					}
+					if (! array_search($shareKey, $c ['include'])) {
+						$rsyncOptions .= " --include='$shareKey'";
+					}
+				}
+			}
 		}
 		
 		foreach ( $c ['exclude'] as $exclude ) {
 			$rsyncOptions .= " --exclude='$exclude'";
 		}
-		$rsyncCommand = "rsync $rsyncOptions $restoreHostName:" . $c ['restorebase'] . "  $dataDir ";
+		$rsyncCommand = "rsync $rsyncOptions $restoreHostName:" . $c ['restorebase'] . " $parentDir";
 		$command = "$rsyncCommand >> $logfileName 2>&1";
 		
 		$this->configService->setRestoreCommand($command);

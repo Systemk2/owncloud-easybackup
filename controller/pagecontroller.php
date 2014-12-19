@@ -35,50 +35,51 @@ use \OCP\IRequest;
 use \OCP\IURLGenerator;
 
 class PageController extends BaseController {
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\BackupService
 	 */
 	protected $backupService;
-
+	
 	/**
 	 *
 	 * @var \OCP\IURLGenerator
 	 */
 	protected $urlGenerator;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ConfigService
 	 */
 	protected $configService;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\Service\ScheduleService
 	 */
 	private $scheduleService;
-
+	
 	/**
 	 *
 	 * @var \OCA\EasyBackup\StatusContainer
 	 */
 	private $statusContainer;
-
+	
 	/**
 	 *
 	 * @var boolean
 	 */
 	private $isAdmin;
-
+	
 	/**
+	 *
 	 * @var \OC\AppFramework\DependencyInjection\DIContainer
 	 */
 	private $container;
 
-	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService,
-			ConfigService $configService, ScheduleService $scheduleService, IURLGenerator $urlGenerator,
+	public function __construct($appName, IRequest $request, ILogger $logger, BackupService $backupService, 
+			ConfigService $configService, ScheduleService $scheduleService, IURLGenerator $urlGenerator, 
 			ResponseFactory $responseFactory, DIContainer $container) {
 		parent::__construct($appName, $request, $logger, $responseFactory);
 		$this->backupService = $backupService;
@@ -93,8 +94,8 @@ class PageController extends BaseController {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		if(!$this->container->isAdminUser()) {
-			return $this->responseFactory->createTemplateResponse($this->appName, 'forbidden', array());
+		if (! $this->container->isAdminUser()) {
+			return $this->responseFactory->createTemplateResponse($this->appName, 'forbidden', array ());
 		}
 		if ($this->getStatusContainer()->getOverallStatus() == \OCA\EasyBackup\StatusContainer::OK) {
 			if ($this->backupService->isLastBackupSuccessful()) {
@@ -145,9 +146,9 @@ class PageController extends BaseController {
 				'publicKey' => $this->configService->getPublicKey(),
 				'isExecuting' => $this->backupService->isExecutingOrWaitingForRun(),
 				'lastBackupSuccessful' => $this->backupService->isLastBackupSuccessful(),
-				'lastBackupTime' => $this->backupService->getLastBackupTime()
+				'lastBackupTime' => $this->backupService->getLastBackupTime() 
 		);
-
+		
 		return $parameters;
 	}
 
