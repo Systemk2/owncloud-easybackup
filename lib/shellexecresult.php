@@ -42,6 +42,10 @@ class ShellExecResult {
 		return $this->retVal;
 	}
 
+	/**
+	 *
+	 * @return array with one output line per item
+	 */
 	public function getOutput() {
 		return $this->output;
 	}

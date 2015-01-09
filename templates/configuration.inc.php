@@ -57,7 +57,7 @@ use \OCA\EasyBackup\StatusContainer;
 		<?php
 		p($l->t('Get an account (6 months / 1GB free)  at'));
 		?>
-		<a href="http://www.trustedspace.de" target="_new">www.trustedspace.de</a>
+		<a href="https://trustedspace.agitos.de/webgui/" target="_new">trustedspace.agitos.de</a>
 </div>
 <div id="easybackup_publickeymanagement">
 	<?php

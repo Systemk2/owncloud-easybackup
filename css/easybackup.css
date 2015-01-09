@@ -10,8 +10,9 @@ span {
 }
 
 .easybackup_agitos_logo {
-	background: url("../img/trustedspace_logo.png") no-repeat right center;
-	padding: 10px 130px 10px 0;
+	width: 127px;
+	height: 40px;
+	margin-bottom: -15px;
 }
 
 .easybackup_download_icon {
@@ -123,6 +124,10 @@ input.easybackup_input {
 	padding-left: 20px;
 }
 
+#easybackup_troubleshooting_link {
+	background: url("../img/help.png") no-repeat right center;
+}
+
 #easybackup_content textarea {
 	width: 350px;
 	height: 350px;
@@ -132,7 +137,7 @@ input.easybackup_input {
 	font-size: smaller;
 	text-decoration: underline;
 	float: right;
-	padding-right: 15px;
+	padding-right: 20px;
 }
 
 #easybackup_credits {

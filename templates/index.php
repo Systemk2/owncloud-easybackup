@@ -30,7 +30,8 @@
 	<div id="app-content">
 		<div id="easybackup_content">
 			<div id="easybackup_partner">
-				<span class="easybackup_logo">&nbsp;</span> free! partner edition with <a class="easybackup_agitos_logo" href="http://www.trustedspace.de" target="_new">&nbsp;</a>
+				<span class="easybackup_logo">&nbsp;</span> free! partner edition with <a href="http://www.trustedspace.de" target="_new"> <img src="https://trustedspace.agitos.de/webgui/javax.faces.resource/trustedspace-logo.png.jsf?ln=images" class="easybackup_agitos_logo" />
+				</a>
 			</div>
 			<div>
 				<?php print_unescaped($this->inc($_['subTemplate'])); ?>

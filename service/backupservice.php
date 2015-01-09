@@ -117,9 +117,32 @@ class BackupService {
 		return preg_match('/^[a-z]+[0-9]+$/', $username) === 1;
 	}
 
+	/**
+	 *
+	 * @return boolean
+	 */
 	public function isSshKeygenPresent() {
 		$result = $this->shellExecService->shellExec('which ssh-keygen');
 		return $result->isOk();
+	}
+
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function checkSshConnection() {
+		$logfileName = $this->configService->getLogfileName();
+		$host = $this->configService->getHost();
+		$keyFileName = $this->configService->getPrivateKeyFilename();
+		$knownHostsFileName = $this->configService->getKnownHostsFileName();
+		$sshCommand = "ssh -t -t -i \"$keyFileName\" -o StrictHostKeyChecking=no -o UserKnownHostsFile=\"$knownHostsFileName\" $host 2>&1";
+		$result = $this->shellExecService->shellExec($sshCommand);
+		$output = $result->getOutput();
+		if (count($output) !== 2) {
+			return false;
+		}
+		// The following error message means connection was successfully created
+		return $output [1] == 'PTY allocation request failed on channel 0';
 	}
 
 	public function createSshKey($privateKeyFileName) {
@@ -319,6 +342,8 @@ class BackupService {
 				$this->trans->t('private key for backup authentication'));
 		$statusContainer->addStatus('hostNameValid', $this->isHostUserNameValid() ? StatusContainer::OK : StatusContainer::ERROR, 
 				$this->trans->t('host user name validation'));
+		$statusContainer->addStatus('sshConnection', $this->checkSshConnection() ? StatusContainer::OK : StatusContainer::ERROR, 
+				$this->trans->t('SSH connection to backup server'));
 		
 		return $statusContainer;
 	}

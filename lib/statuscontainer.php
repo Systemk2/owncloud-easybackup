@@ -103,4 +103,19 @@ class StatusContainer {
 		}
 		return $allStatus;
 	}
+
+	/**
+	 *
+	 * @return array:string
+	 */
+	public function getErrorCodesJsonUrlEncoded() {
+		$errorCodes = array ();
+		foreach ( $this->statusMap as $statusType => $status ) {
+			if ($status == self::ERROR) {
+				$errorCodes [] = $statusType;
+			}
+		}
+		$returnVal = urlencode(json_encode($errorCodes));
+		return $returnVal;
+	}
 }

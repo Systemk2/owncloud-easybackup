@@ -36,6 +36,9 @@ if ($_ ['statusContainer']->getOverallStatus() == \OCA\EasyBackup\StatusContaine
 	p($l->t('Imperfect operating conditions'));
 } else {
 	p($l->t('Verification of operating conditions failed'));
+	print_unescaped(
+			'<a id="easybackup_troubleshooting_link" target="_new" href="https://trustedspace.agitos.de/owncloud-troubleshooting/?errorCode=');
+	print_unescaped($_ ['statusContainer']->getErrorCodesJsonUrlEncoded() . '">' . $l->t('get help') . '</a>');
 }
 ?>
 </span>
